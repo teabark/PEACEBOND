@@ -38,6 +38,16 @@ function PeaceBondCard({ peaceBond }) {
         </p>
       </div>
 
+      <div className="mt-5 rounded-lg border border-earth-olive/20 bg-earth-sand/70 p-4">
+        <p className="text-sm font-semibold uppercase tracking-wide text-earth-olive">
+          Plan explanation
+        </p>
+        <p className="mt-2 text-sm leading-6 text-stone-700">
+          {peaceBond.explanation ||
+            "Severity determines the depth of repair and support, not punishment."}
+        </p>
+      </div>
+
       <div className="mt-5 border-t border-stone-200 pt-5">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-earth-olive">
           Repair actions

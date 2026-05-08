@@ -100,6 +100,9 @@ function HarmForm({ error, isGenerating, onGenerate }) {
               <option value="moderate">Moderate</option>
               <option value="high">High</option>
             </select>
+            <p className="mt-2 text-xs leading-5 text-stone-500">
+              Severity determines the depth of repair and support, not punishment.
+            </p>
           </div>
         </div>
 

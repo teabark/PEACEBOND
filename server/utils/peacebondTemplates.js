@@ -1,110 +1,173 @@
 const peacebondTemplates = [
   {
     category: "theft_livestock",
-    keywords: ["theft", "stole", "stolen", "livestock", "cattle", "goat", "sheep"],
-    repairActions: [
-      "Return or replace what was taken through an agreed community process.",
-      "Help rebuild trust with the affected household through practical support.",
-      "Join a guided conversation with elders or mediators to name the harm clearly.",
-    ],
-    ritual: "A small restitution gathering where the item, value, or apology is received with witnesses.",
-    grant: {
-      amount: 120,
-      currency: "USD",
-      purpose: "Shared tools or materials that support restitution and rebuilding.",
+    categoryLabel: "livestock theft",
+    focus: "restitution, household repair, and mediated reconciliation",
+    keywords: ["theft", "stole", "stolen", "livestock", "cattle", "goat", "goats", "sheep"],
+    repairActions: {
+      low: [
+        "Offer a mediated apology to the affected household and name the item or animal taken.",
+        "Return the item or agree on a small restitution contribution witnessed by the mediator.",
+        "Complete one short support task chosen by the affected household, such as cleaning or carrying water.",
+      ],
+      moderate: [
+        "Agree on a restitution plan with the affected household and mediator.",
+        "Complete supervised community repair work connected to the harm caused.",
+        "Attend a peace circle with elders and affected family members to confirm the repair agreement.",
+      ],
+      high: [
+        "Give a formal accountability testimony before mediators, elders, and affected household representatives.",
+        "Complete an extended supervised restitution plan that replaces livestock value through labor or agreed installments.",
+        "Mentor a younger community member on lawful livelihood choices while completing weekly mediator check-ins.",
+      ],
     },
+    ritual: "A restitution gathering where the affected household receives the repair commitment with trusted witnesses.",
+  },
+  {
+    category: "destruction_property",
+    categoryLabel: "property damage",
+    focus: "repair work, material replacement, and restored community safety",
+    keywords: ["destruction", "destroyed", "damaged", "burned", "broke", "broken", "vandalized", "property"],
+    repairActions: {
+      low: [
+        "Apologize to the owner in a mediated meeting and identify the specific damage caused.",
+        "Provide a small replacement item or repair material agreed with the mediator.",
+        "Complete a short supervised repair task at the damaged site.",
+      ],
+      moderate: [
+        "Join the mediator and owner to agree on a practical repair schedule.",
+        "Complete supervised repair labor until the damaged property is usable again.",
+        "Attend a community check-in where the repaired property and future safety commitments are acknowledged.",
+      ],
+      high: [
+        "Give a formal account of the damage caused and accept a written repair agreement.",
+        "Complete extended supervised rebuilding work with weekly mediator verification.",
+        "Support a community safety activity that prevents future damage, such as restoring shared fencing or lighting.",
+      ],
+    },
+    ritual: "A rebuilding day that closes with community acknowledgment of restored safety and shared responsibility.",
   },
   {
     category: "militia_armed",
-    keywords: ["militia", "armed", "fighter", "weapon", "combatant", "rebel"],
-    repairActions: [
-      "Give a guided testimony that acknowledges harm without glorifying violence.",
-      "Mentor a younger community member toward nonviolent choices.",
-      "Take part in a supervised service day that supports a public community need.",
-    ],
+    categoryLabel: "armed group involvement",
+    focus: "accountability testimony, supervised service, and peaceful role formation",
+    keywords: ["militia", "armed", "fighter", "weapon", "combatant", "rebel", "raid", "gun"],
+    repairActions: {
+      low: [
+        "Meet with a mediator to describe the role played without glorifying violence.",
+        "Apologize to affected representatives for fear caused by armed presence or association.",
+        "Complete one supervised community service task that supports peaceful return.",
+      ],
+      moderate: [
+        "Give a guided testimony that acknowledges harm and explains the commitment to nonviolence.",
+        "Complete supervised service work chosen by a community mediation group.",
+        "Attend a peace circle focused on safety commitments and practical reintegration support.",
+      ],
+      high: [
+        "Give formal accountability testimony before mediators, elders, and community safety representatives.",
+        "Complete an extended supervised service plan with documented weekly attendance.",
+        "Mentor at-risk youth toward nonviolent choices with mediator oversight.",
+      ],
+    },
     ritual: "A community witnessing circle where testimony is heard and a peaceful role is affirmed.",
-    grant: {
-      amount: 180,
-      currency: "USD",
-      purpose: "Training materials or livelihood support tied to peaceful reintegration.",
-    },
   },
   {
-    category: "violence_fight",
-    keywords: ["violence", "fight", "fighting", "assault", "hit", "injured", "beating"],
-    repairActions: [
-      "Offer a direct apology in a mediated setting if the harmed person agrees.",
-      "Attend a peace circle focused on responsibility and future safety.",
-      "Complete a helpful task chosen by the affected person or community mediator.",
-    ],
-    ritual: "A peace circle where both safety commitments and repair actions are spoken aloud.",
-    grant: {
-      amount: 100,
-      currency: "USD",
-      purpose: "Community peace circle materials and practical repair support.",
+    category: "violence_fighting",
+    categoryLabel: "violence or fighting",
+    focus: "apology, safety commitments, and peace circle repair",
+    keywords: ["violence", "violent", "fight", "fighting", "assault", "hit", "injured", "beating", "attack"],
+    repairActions: {
+      low: [
+        "Offer a mediated apology if the harmed person agrees to receive it.",
+        "Join a short mediation meeting to agree on respectful future contact.",
+        "Complete one practical support task selected by the mediator to repair community trust.",
+      ],
+      moderate: [
+        "Attend a peace circle focused on responsibility, safety, and future contact boundaries.",
+        "Complete a supervised repair task chosen by the affected person or mediation group.",
+        "Write or speak a safety commitment that is witnessed by the mediator and community elders.",
+      ],
+      high: [
+        "Give a formal accountability statement that names the harm and accepts safety conditions.",
+        "Complete extended supervised community service focused on restoring public safety.",
+        "Attend follow-up reconciliation sessions with mediators before any public acknowledgment ritual.",
+      ],
     },
-  },
-  {
-    category: "destruction",
-    keywords: ["destruction", "destroyed", "damaged", "burned", "broke", "vandalized"],
-    repairActions: [
-      "Help repair or replace the damaged property with supervised labor.",
-      "Contribute time to a shared community rebuilding activity.",
-      "Meet with those affected to agree on what repair will feel meaningful.",
-    ],
-    ritual: "A rebuilding day that ends with a shared meal or blessing for restored safety.",
-    grant: {
-      amount: 150,
-      currency: "USD",
-      purpose: "Basic materials for repair work and community labor.",
-    },
+    ritual: "A peace circle where safety commitments and repair actions are spoken aloud with care.",
   },
   {
     category: "verbal_threats",
-    keywords: ["threat", "threats", "verbal", "insult", "intimidated", "harassed"],
-    repairActions: [
-      "Make a clear apology for the words used and the fear they caused.",
-      "Join a mediation session to agree on respectful future contact.",
-      "Support a community dialogue about dignity and nonviolent speech.",
-    ],
-    ritual: "A mediation meeting where harmful words are replaced with public commitments to respect.",
-    grant: {
-      amount: 80,
-      currency: "USD",
-      purpose: "Mediation support and materials for a respectful dialogue session.",
+    categoryLabel: "verbal threats",
+    focus: "apology, mediation, and respectful communication",
+    keywords: ["threat", "threats", "verbal", "insult", "intimidated", "harassed", "abuse"],
+    repairActions: {
+      low: [
+        "Offer a clear mediated apology for the words used and the fear they caused.",
+        "Agree on a respectful contact boundary with the mediator present.",
+        "Complete a short reflection statement on nonviolent speech and community dignity.",
+      ],
+      moderate: [
+        "Attend a mediation session with the affected person or representative if they consent.",
+        "Participate in a community dialogue on respectful speech and de-escalation.",
+        "Complete a follow-up check-in with the mediator to confirm the agreement is being honored.",
+      ],
+      high: [
+        "Give a formal acknowledgment of the threats and agree to a written non-intimidation plan.",
+        "Complete multiple mediator check-ins focused on safe communication and emotional regulation.",
+        "Support a community dialogue activity that helps prevent intimidation and verbal harm.",
+      ],
     },
+    ritual: "A mediation meeting where harmful words are replaced with public commitments to respect.",
   },
   {
     category: "land_dispute",
-    keywords: ["land", "boundary", "farm", "field", "plot", "dispute", "property"],
-    repairActions: [
-      "Participate in boundary mediation with trusted local witnesses.",
-      "Listen to each side's history of the land without interruption.",
-      "Help document a simple agreement for future use of the disputed space.",
-    ],
-    ritual: "A boundary walk where agreed markers are recognized by both families or groups.",
-    grant: {
-      amount: 130,
-      currency: "USD",
-      purpose: "Boundary markers, meeting costs, and dialogue materials.",
+    categoryLabel: "land dispute",
+    focus: "boundary mediation, dialogue, and shared agreement",
+    keywords: ["land", "boundary", "farm", "field", "plot", "dispute", "property", "border"],
+    repairActions: {
+      low: [
+        "Attend a short boundary mediation meeting with trusted local witnesses.",
+        "Listen to the affected household's account without interruption.",
+        "Sign or verbally confirm a simple temporary boundary agreement.",
+      ],
+      moderate: [
+        "Participate in a boundary walk with mediators, elders, and affected household representatives.",
+        "Help mark agreed boundary points with simple materials provided through mediation.",
+        "Attend a dialogue session to document future land-use commitments.",
+      ],
+      high: [
+        "Give a formal statement accepting the mediation process and pausing disputed land use.",
+        "Complete supervised work to restore damaged boundary markers or shared access paths.",
+        "Attend extended dialogue sessions until a witnessed land-use agreement is documented.",
+      ],
     },
+    ritual: "A boundary walk where agreed markers are recognized by both families or groups.",
   },
 ];
 
 const defaultTemplate = {
-  category: "community_repair",
+  category: "general_harm",
+  categoryLabel: "general community harm",
+  focus: "listening, practical repair, and mediated return",
   keywords: [],
-  repairActions: [
-    "Meet with a mediator to name the harm and hear who was affected.",
-    "Complete one practical act of service chosen through community dialogue.",
-    "Share a respectful apology or commitment that focuses on future peace.",
-  ],
-  ritual: "A quiet reconciliation meeting where repair commitments are witnessed.",
-  grant: {
-    amount: 90,
-    currency: "USD",
-    purpose: "Basic materials for community repair and mediation.",
+  repairActions: {
+    low: [
+      "Meet with a mediator to name the harm and identify who was affected.",
+      "Offer a respectful apology or commitment if the affected person agrees to receive it.",
+      "Complete one short practical repair task chosen through community dialogue.",
+    ],
+    moderate: [
+      "Create a repair agreement with the mediator and affected representatives.",
+      "Complete supervised service that responds to the harm and supports community trust.",
+      "Attend a peace circle to review the repair work and confirm next steps.",
+    ],
+    high: [
+      "Give a formal accountability statement before mediators and trusted community representatives.",
+      "Complete an extended supervised service plan with documented check-ins.",
+      "Participate in follow-up reconciliation sessions before a completion ritual is held.",
+    ],
   },
+  ritual: "A quiet reconciliation meeting where repair commitments are witnessed.",
 };
 
 module.exports = {

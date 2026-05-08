@@ -55,6 +55,11 @@ const peaceBondSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    explanation: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     grant: {
       amount: {
         type: Number,
@@ -68,6 +73,15 @@ const peaceBondSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+    },
+    grantAmount: {
+      type: Number,
+      required: true,
+    },
+    grantPurpose: {
+      type: String,
+      required: true,
+      trim: true,
     },
     completedActions: {
       type: [Boolean],

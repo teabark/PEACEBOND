@@ -64,7 +64,7 @@ async function createPeaceBond(req, res) {
   }
 
   const peaceBond = await PeaceBond.create({
-    ...generatePeaceBond({ fighterName, harmDescription, severity }),
+    ...generatePeaceBond({ fighterName, harmDescription, severity, skills }),
     phoneNumber: typeof phoneNumber === "string" ? phoneNumber.trim() : "",
     communityType: typeof communityType === "string" && communityType.trim()
       ? communityType.trim()
