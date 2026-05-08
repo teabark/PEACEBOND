@@ -91,6 +91,11 @@ function ActivePeaceBonds({
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-lg font-semibold text-earth-soil">{peaceBond.fighterName}</p>
+                  {peaceBond.nationality && (
+                    <p className="mt-1 text-xs font-semibold text-earth-olive">
+                      Nationality: {peaceBond.nationality}
+                    </p>
+                  )}
                   <p className="mt-1 text-sm leading-6 text-stone-600">
                     {getShortDescription(peaceBond.harmDescription)}
                   </p>

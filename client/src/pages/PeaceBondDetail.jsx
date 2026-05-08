@@ -214,6 +214,11 @@ function PeaceBondDetail() {
             Repair workspace
           </p>
           <h1 className="mt-2 text-3xl font-semibold">{peaceBond.fighterName}</h1>
+          {peaceBond.nationality && (
+            <p className="mt-2 text-sm font-semibold text-earth-olive">
+              Nationality: {peaceBond.nationality}
+            </p>
+          )}
           <p className="mt-2 text-sm leading-6 text-stone-600">
             Track each repair action with care. When repair reaches 100%, staff complete a short
             review before the mock grant and certificate are released.

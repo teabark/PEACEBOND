@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { seedStaffUsers } = require("../seed/staffUsers");
+const { seedDemoData } = require("../seed/staffUsers");
 
 async function connectDB() {
   if (!process.env.MONGODB_URI) {
@@ -9,7 +9,7 @@ async function connectDB() {
 
   await mongoose.connect(process.env.MONGODB_URI);
   console.log("MongoDB connected");
-  await seedStaffUsers();
+  await seedDemoData();
 }
 
 module.exports = connectDB;

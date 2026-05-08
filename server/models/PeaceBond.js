@@ -17,6 +17,11 @@ const peaceBondSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    nationality: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     communityType: {
       type: String,
       trim: true,
@@ -131,6 +136,12 @@ const peaceBondSchema = new mongoose.Schema(
     completedAt: {
       type: Date,
       default: null,
+    },
+    demoSeedKey: {
+      type: String,
+      trim: true,
+      index: true,
+      default: "",
     },
   },
   {

@@ -22,6 +22,16 @@ const staffUserSchema = new mongoose.Schema(
       type: String,
       default: "staff",
     },
+    title: {
+      type: String,
+      trim: true,
+      default: "PeaceBond Mediator",
+    },
+    communityFocus: {
+      type: String,
+      trim: true,
+      default: "Community repair and reintegration",
+    },
   },
   {
     timestamps: true,

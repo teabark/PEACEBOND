@@ -18,9 +18,12 @@ reintegration grant, and download a completion certificate.
 
 ## Demo Staff Accounts
 
-- `alice@peacebond.org` / `123456`
-- `john@peacebond.org` / `123456`
-- `fatima@peacebond.org` / `123456`
+- Alice Kamau, Livestock and Land Repair Mediator: `alice@peacebond.org` / `123456`
+- John Mwangi, Fishing Livelihoods Mediator: `john@peacebond.org` / `123456`
+- Fatima Noor, Youth Reintegration and Anti-Recruitment Mediator: `fatima@peacebond.org` / `123456`
+
+The backend seeds these demo mediators and realistic assigned PeaceBond cases
+after MongoDB connects. Run `npm run seed:demo` from `server/` to seed manually.
 
 ## Run Locally
 

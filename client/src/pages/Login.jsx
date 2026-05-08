@@ -11,16 +11,22 @@ const demoStaffAccounts = [
     name: "Alice Kamau",
     email: "alice@peacebond.org",
     password: "123456",
+    title: "Livestock and Land Repair Mediator",
+    focus: "Pastoral communities and restitution",
   },
   {
     name: "John Mwangi",
     email: "john@peacebond.org",
     password: "123456",
+    title: "Fishing Livelihoods Mediator",
+    focus: "Coastal reconciliation and repair",
   },
   {
     name: "Fatima Noor",
     email: "fatima@peacebond.org",
     password: "123456",
+    title: "Youth Reintegration Mediator",
+    focus: "Anti-recruitment and nonviolence mentoring",
   },
 ];
 
@@ -177,6 +183,10 @@ function Login() {
                   <span className="block text-sm font-semibold text-earth-soil">
                     {account.name}
                   </span>
+                  <span className="mt-1 block text-xs font-semibold text-earth-olive">
+                    {account.title}
+                  </span>
+                  <span className="mt-1 block text-xs text-stone-600">{account.focus}</span>
                   <span className="block text-sm text-stone-600">{account.email}</span>
                 </button>
               ))}

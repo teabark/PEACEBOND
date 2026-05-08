@@ -3,6 +3,7 @@ import { useState } from "react";
 function HarmForm({ error, isGenerating, onGenerate }) {
   const [fighterName, setFighterName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [nationality, setNationality] = useState("");
   const [communityType, setCommunityType] = useState("Rural village");
   const [skills, setSkills] = useState("");
   const [severity, setSeverity] = useState("moderate");
@@ -14,6 +15,7 @@ function HarmForm({ error, isGenerating, onGenerate }) {
       communityType,
       fighterName,
       harmDescription,
+      nationality,
       phoneNumber,
       severity,
       skills,
@@ -23,7 +25,7 @@ function HarmForm({ error, isGenerating, onGenerate }) {
   return (
     <section className="rounded-lg border border-stone-200 bg-white/90 p-5 shadow-sm sm:p-6">
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label className="text-sm font-semibold text-earth-soil" htmlFor="fighter-name">
               Rehabilitatee name
@@ -49,6 +51,20 @@ function HarmForm({ error, isGenerating, onGenerate }) {
               placeholder="Example: +254 700 000 000"
               type="tel"
               value={phoneNumber}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-semibold text-earth-soil" htmlFor="nationality">
+              Nationality
+            </label>
+            <input
+              className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
+              id="nationality"
+              onChange={(event) => setNationality(event.target.value)}
+              placeholder="Example: Kenyan"
+              type="text"
+              value={nationality}
             />
           </div>
         </div>

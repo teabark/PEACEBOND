@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
+    "seed:demo": "node seed/staffUsers.js",
     "seed:staff": "node seed/staffUsers.js",
     "start": "node index.js"
   },

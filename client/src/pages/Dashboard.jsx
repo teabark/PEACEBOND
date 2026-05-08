@@ -54,21 +54,14 @@ function Dashboard() {
   const recentPeaceBonds = peaceBonds.slice(0, 4);
 
   return (
-    <div className="flex flex-col gap-5">
-      <header>
-        <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">
-          Staff overview
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold">PeaceBond Dashboard</h1>
-      </header>
-
+    <div className="flex flex-col gap-6">
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {impactStats.map((stat) => (
           <ImpactStatCard key={stat.label} label={stat.label} value={stat.value} />
         ))}
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
         <ActivePeaceBonds
           emptyMessage="No active repair journeys need attention right now."
           error={error}
@@ -93,6 +86,11 @@ function Dashboard() {
                   <p className="text-sm font-semibold text-earth-soil">
                     {peaceBond.fighterName}
                   </p>
+                  {peaceBond.nationality && (
+                    <p className="mt-1 text-xs font-semibold text-earth-olive">
+                      Nationality: {peaceBond.nationality}
+                    </p>
+                  )}
                   <p className="mt-1 text-xs capitalize text-stone-600">
                     {peaceBond.category.replaceAll("_", " ")} - {peaceBond.progress}% complete
                   </p>

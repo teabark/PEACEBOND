@@ -1,5 +1,6 @@
 function PeaceBondCard({ peaceBond }) {
   const skills = peaceBond.skills || "No skill recorded yet";
+  const nationality = peaceBond.nationality || "Not recorded";
 
   return (
     <section className="rounded-lg border border-stone-200 bg-white/90 p-5 shadow-sm sm:p-6">
@@ -20,10 +21,14 @@ function PeaceBondCard({ peaceBond }) {
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 border-t border-stone-200 pt-5 text-sm text-stone-700 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-5 grid gap-3 border-t border-stone-200 pt-5 text-sm text-stone-700 sm:grid-cols-2 lg:grid-cols-3">
         <p>
           <span className="font-semibold text-earth-soil">Phone:</span>{" "}
           {peaceBond.phoneNumber || "Not recorded"}
+        </p>
+        <p>
+          <span className="font-semibold text-earth-soil">Nationality:</span>{" "}
+          {nationality}
         </p>
         <p>
           <span className="font-semibold text-earth-soil">Community:</span>{" "}
