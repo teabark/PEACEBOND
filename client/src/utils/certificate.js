@@ -1,9 +1,24 @@
 import { jsPDF } from "jspdf";
 
+function getShortReportSummary(peaceBond) {
+  const summary = peaceBond.completionReport?.summary;
+
+  if (!summary) {
+    return "";
+  }
+
+  if (summary.length <= 220) {
+    return summary;
+  }
+
+  return `${summary.slice(0, 217)}...`;
+}
+
 export function downloadCertificate({ completedActions, peaceBond, progress }) {
   const doc = new jsPDF();
   const completedCount = completedActions.filter(Boolean).length;
   const generatedDate = new Date().toLocaleDateString();
+  const reportSummary = getShortReportSummary(peaceBond);
 
   doc.setFillColor(247, 239, 228);
   doc.rect(0, 0, 210, 297, "F");
@@ -88,6 +103,48 @@ export function downloadCertificate({ completedActions, peaceBond, progress }) {
 
   doc.setFont("helvetica", "normal");
   doc.text(`Generated on ${generatedDate}`, 150, 292);
+
+  if (reportSummary) {
+    doc.addPage();
+
+    doc.setFillColor(247, 239, 228);
+    doc.rect(0, 0, 210, 297, "F");
+
+    doc.setTextColor(47, 36, 29);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("Staff Completion Report", 105, 36, { align: "center" });
+
+    doc.setDrawColor(184, 116, 79);
+    doc.line(30, 48, 180, 48);
+
+    doc.setFontSize(14);
+    doc.text("Completion review summary", 24, 70);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(reportSummary, 24, 82, { maxWidth: 160 });
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Community acknowledgment", 24, 128);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(peaceBond.completionReport?.communityResponse || "Recorded by staff review.", 24, 140, {
+      maxWidth: 160,
+    });
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Staff recommendation", 24, 186);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      peaceBond.completionReport?.staffRecommendation ||
+        "Grant release and certificate issuance reviewed by staff.",
+      24,
+      198,
+      { maxWidth: 160 }
+    );
+  }
 
   doc.save("peacebond-certificate.pdf");
 }

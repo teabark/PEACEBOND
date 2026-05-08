@@ -35,3 +35,11 @@ export async function updatePeaceBondProgress(id, completedActions, staffUserId)
   });
   return response.data;
 }
+
+export async function submitCompletionReport(id, reportDetails, staffUserId) {
+  const response = await api.patch(`/peacebonds/${id}/completion-report`, {
+    ...reportDetails,
+    createdBy: staffUserId,
+  });
+  return response.data;
+}

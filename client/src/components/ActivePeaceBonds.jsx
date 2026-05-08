@@ -12,12 +12,16 @@ function getShortDescription(description) {
   return `${description.slice(0, 110)}...`;
 }
 
-function getStatus(progress) {
-  if (progress === 100) {
+function getStatus(peaceBond) {
+  if (peaceBond.progress === 100 && !peaceBond.reportSubmitted) {
+    return "review needed";
+  }
+
+  if (peaceBond.reportSubmitted) {
     return "completed";
   }
 
-  if (progress === 0) {
+  if (peaceBond.progress === 0) {
     return "under review";
   }
 
@@ -31,6 +35,10 @@ function getStatusClasses(status) {
 
   if (status === "under review") {
     return "bg-blue-100 text-blue-800 border-blue-200";
+  }
+
+  if (status === "review needed") {
+    return "bg-earth-sand text-earth-soil border-earth-clay/30";
   }
 
   return "bg-yellow-100 text-yellow-900 border-yellow-200";
@@ -90,10 +98,10 @@ function ActivePeaceBonds({
 
                 <span
                   className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold capitalize ${getStatusClasses(
-                    getStatus(peaceBond.progress)
+                    getStatus(peaceBond)
                   )}`}
                 >
-                  {getStatus(peaceBond.progress)}
+                  {getStatus(peaceBond)}
                 </span>
               </div>
 

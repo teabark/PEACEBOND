@@ -11,6 +11,10 @@ function isValidStaffId(staffUserId) {
   return staffUserId && mongoose.Types.ObjectId.isValid(staffUserId);
 }
 
+function hasText(value) {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 async function listPeaceBonds(req, res) {
   const { createdBy } = req.query;
 
@@ -119,12 +123,21 @@ async function updatePeaceBondProgress(req, res) {
 
   const completedCount = completedActions.filter(Boolean).length;
   const progress = Math.round((completedCount / 3) * 100);
+  const existingPeaceBond = await PeaceBond.findOne({ _id: req.params.id, createdBy });
+
+  if (!existingPeaceBond) {
+    return res.status(404).json({ message: "PeaceBond not found." });
+  }
+
+  const canReleaseGrant = progress === 100 && existingPeaceBond.reportSubmitted;
   const completionFields =
     progress === 100
       ? {
-          completedAt: new Date(),
-          grantReleased: true,
-          grantReleasedAt: new Date(),
+          completedAt: existingPeaceBond.completedAt || new Date(),
+          grantReleased: canReleaseGrant,
+          grantReleasedAt: canReleaseGrant
+            ? existingPeaceBond.grantReleasedAt || new Date()
+            : null,
         }
       : {
           completedAt: null,
@@ -145,9 +158,65 @@ async function updatePeaceBondProgress(req, res) {
   return res.json(peaceBond);
 }
 
+async function submitCompletionReport(req, res) {
+  const { communityResponse, createdBy, reportSummary, staffRecommendation } = req.body;
+
+  if (!isDatabaseConnected()) {
+    return res.status(503).json({ message: "Database is not connected." });
+  }
+
+  if (!isValidStaffId(createdBy)) {
+    return res.status(400).json({ message: "A valid staff user ID is required." });
+  }
+
+  if (!hasText(reportSummary) || !hasText(communityResponse) || !hasText(staffRecommendation)) {
+    return res.status(400).json({
+      message: "Report summary, community response, and staff recommendation are required.",
+    });
+  }
+
+  const existingPeaceBond = await PeaceBond.findOne({ _id: req.params.id, createdBy });
+
+  if (!existingPeaceBond) {
+    return res.status(404).json({ message: "PeaceBond not found." });
+  }
+
+  if (
+    existingPeaceBond.progress !== 100 ||
+    !Array.isArray(existingPeaceBond.completedActions) ||
+    !existingPeaceBond.completedActions.every(Boolean)
+  ) {
+    return res.status(400).json({
+      message: "All repair actions must be complete before submitting the completion report.",
+    });
+  }
+
+  const now = new Date();
+  const peaceBond = await PeaceBond.findOneAndUpdate(
+    { _id: req.params.id, createdBy },
+    {
+      completionReport: {
+        communityResponse: communityResponse.trim(),
+        staffRecommendation: staffRecommendation.trim(),
+        summary: reportSummary.trim(),
+      },
+      completionReviewed: true,
+      reportSubmitted: true,
+      reportSubmittedAt: now,
+      grantReleased: true,
+      grantReleasedAt: existingPeaceBond.grantReleasedAt || now,
+      completedAt: existingPeaceBond.completedAt || now,
+    },
+    { new: true, runValidators: true }
+  );
+
+  return res.json(peaceBond);
+}
+
 module.exports = {
   createPeaceBond,
   getPeaceBond,
   listPeaceBonds,
+  submitCompletionReport,
   updatePeaceBondProgress,
 };

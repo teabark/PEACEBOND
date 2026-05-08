@@ -91,6 +91,35 @@ const peaceBondSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    completionReport: {
+      summary: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      communityResponse: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      staffRecommendation: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+    },
+    reportSubmitted: {
+      type: Boolean,
+      default: false,
+    },
+    completionReviewed: {
+      type: Boolean,
+      default: false,
+    },
+    reportSubmittedAt: {
+      type: Date,
+      default: null,
+    },
     grantReleased: {
       type: Boolean,
       default: false,

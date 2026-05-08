@@ -11,7 +11,7 @@ function getDaysOpen(createdAt) {
 
 function buildStories(peaceBonds) {
   const completedStories = peaceBonds
-    .filter((peaceBond) => peaceBond.progress === 100)
+    .filter((peaceBond) => peaceBond.reportSubmitted)
     .slice(0, 2)
     .map((peaceBond) => ({
       title: `${peaceBond.fighterName} completed reintegration`,
@@ -24,7 +24,9 @@ function buildStories(peaceBonds) {
     return completedStories;
   }
 
-  const activeCount = peaceBonds.filter((peaceBond) => peaceBond.progress < 100).length;
+  const activeCount = peaceBonds.filter(
+    (peaceBond) => peaceBond.progress < 100 || !peaceBond.reportSubmitted
+  ).length;
 
   if (activeCount > 0) {
     return [

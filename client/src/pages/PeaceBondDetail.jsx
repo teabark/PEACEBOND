@@ -4,8 +4,9 @@ import CertificateButton from "../components/CertificateButton.jsx";
 import GrantNotice from "../components/GrantNotice.jsx";
 import PeaceBondCard from "../components/PeaceBondCard.jsx";
 import ProgressTracker from "../components/ProgressTracker.jsx";
+import StaffCompletionReport from "../components/StaffCompletionReport.jsx";
 import { useToast } from "../components/ToastProvider.jsx";
-import { getPeaceBond, updatePeaceBondProgress } from "../utils/api.js";
+import { getPeaceBond, submitCompletionReport, updatePeaceBondProgress } from "../utils/api.js";
 import { getStaffUser } from "../utils/auth.js";
 import { addNotification } from "../utils/notifications.js";
 
@@ -36,6 +37,7 @@ function PeaceBondDetail() {
   const [completedActions, setCompletedActions] = useState([false, false, false]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const [isSavingProgress, setIsSavingProgress] = useState(false);
 
   const progress = useMemo(() => calculateProgress(completedActions), [completedActions]);
@@ -108,13 +110,13 @@ function PeaceBondDetail() {
 
       if (previousProgress < 100 && updatedPeaceBond.progress === 100) {
         addNotification({
-          title: "Grant release ready",
-          message: `${updatedPeaceBond.fighterName} completed all repair actions. Mock grant ${updatedPeaceBond.grant.currency} ${updatedPeaceBond.grant.amount} is ready.`,
-          type: "grant",
+          title: "Completion review needed",
+          message: `${updatedPeaceBond.fighterName} completed all repair actions. Staff review is needed before grant and certificate release.`,
+          type: "review",
         });
         showToast({
-          title: "PeaceBond completed",
-          message: `Mock grant ${updatedPeaceBond.grant.currency} ${updatedPeaceBond.grant.amount} is ready for release.`,
+          title: "Repair actions complete",
+          message: "Submit the completion report before releasing grant or certificate.",
           type: "success",
           duration: 6200,
         });
@@ -138,6 +140,47 @@ function PeaceBondDetail() {
       });
     } finally {
       setIsSavingProgress(false);
+    }
+  }
+
+  async function handleSubmitCompletionReport(reportDetails) {
+    if (!peaceBond || !staffUser?._id) {
+      return;
+    }
+
+    setIsSubmittingReport(true);
+    setError("");
+
+    try {
+      const updatedPeaceBond = await submitCompletionReport(
+        peaceBond._id,
+        reportDetails,
+        staffUser._id
+      );
+      setPeaceBond(updatedPeaceBond);
+      addNotification({
+        title: "Completion report submitted",
+        message: `${updatedPeaceBond.fighterName} has been reviewed. Mock grant and certificate are now available.`,
+        type: "grant",
+      });
+      showToast({
+        title: "Completion report submitted",
+        message: "Completion report submitted. Grant and certificate are now available.",
+        type: "success",
+        duration: 6200,
+      });
+    } catch (requestError) {
+      const errorMessage =
+        requestError.response?.data?.message ||
+        "Could not submit the completion report. Please check the backend connection.";
+      setError(errorMessage);
+      showToast({
+        title: "Report not submitted",
+        message: errorMessage,
+        type: "error",
+      });
+    } finally {
+      setIsSubmittingReport(false);
     }
   }
 
@@ -172,8 +215,8 @@ function PeaceBondDetail() {
           </p>
           <h1 className="mt-2 text-3xl font-semibold">{peaceBond.fighterName}</h1>
           <p className="mt-2 text-sm leading-6 text-stone-600">
-            Track each repair action with care, then release the mock grant and certificate when
-            the pathway reaches 100%.
+            Track each repair action with care. When repair reaches 100%, staff complete a short
+            review before the mock grant and certificate are released.
           </p>
         </div>
         <Link
@@ -202,7 +245,14 @@ function PeaceBondDetail() {
         />
       </div>
 
-      {progress === 100 && (
+      {progress === 100 && !peaceBond.reportSubmitted && (
+        <StaffCompletionReport
+          isSubmitting={isSubmittingReport}
+          onSubmit={handleSubmitCompletionReport}
+        />
+      )}
+
+      {progress === 100 && peaceBond.reportSubmitted && (
         <div className="grid gap-5 lg:grid-cols-2">
           <GrantNotice grant={peaceBond.grant} />
           <CertificateButton

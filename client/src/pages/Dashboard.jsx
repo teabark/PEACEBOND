@@ -8,8 +8,10 @@ function Dashboard() {
   const { error, isLoading, peaceBonds } = usePeaceBonds();
 
   const impactStats = useMemo(() => {
-    const completedPeaceBonds = peaceBonds.filter((peaceBond) => peaceBond.progress === 100);
-    const activePeaceBonds = peaceBonds.filter((peaceBond) => peaceBond.progress < 100);
+    const completedPeaceBonds = peaceBonds.filter((peaceBond) => peaceBond.reportSubmitted);
+    const activePeaceBonds = peaceBonds.filter(
+      (peaceBond) => peaceBond.progress < 100 || !peaceBond.reportSubmitted
+    );
     const completedRepairs = peaceBonds.reduce((total, peaceBond) => {
       const completedActions = peaceBond.completedActions?.filter(Boolean).length || 0;
       return total + completedActions;
@@ -37,7 +39,7 @@ function Dashboard() {
       },
       {
         label: "Grants Released (mock)",
-        value: completedPeaceBonds.length,
+        value: peaceBonds.filter((peaceBond) => peaceBond.grantReleased).length,
       },
       {
         label: "Communities Impacted",
@@ -46,7 +48,9 @@ function Dashboard() {
     ];
   }, [peaceBonds]);
 
-  const activePeaceBonds = peaceBonds.filter((peaceBond) => peaceBond.progress < 100).slice(0, 3);
+  const activePeaceBonds = peaceBonds
+    .filter((peaceBond) => peaceBond.progress < 100 || !peaceBond.reportSubmitted)
+    .slice(0, 3);
   const recentPeaceBonds = peaceBonds.slice(0, 4);
 
   return (

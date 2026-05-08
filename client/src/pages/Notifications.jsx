@@ -12,7 +12,10 @@ function formatNotificationDate(value) {
 function Notifications() {
   const { peaceBonds } = usePeaceBonds();
   const notifications = useMemo(() => getNotifications(), []);
-  const completedCount = peaceBonds.filter((peaceBond) => peaceBond.progress === 100).length;
+  const completedCount = peaceBonds.filter((peaceBond) => peaceBond.reportSubmitted).length;
+  const pendingReviewCount = peaceBonds.filter(
+    (peaceBond) => peaceBond.progress === 100 && !peaceBond.reportSubmitted
+  ).length;
   const reviewCount = peaceBonds.filter((peaceBond) => peaceBond.progress === 0).length;
 
   return (
@@ -24,7 +27,10 @@ function Notifications() {
 
       <div className="mt-6 grid gap-3">
         <article className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-900">
-          {completedCount} completed PeaceBonds are ready for certificate review.
+          {completedCount} completed PeaceBonds have staff review and grant release recorded.
+        </article>
+        <article className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-yellow-900">
+          {pendingReviewCount} completed repair journeys are waiting for staff completion reports.
         </article>
         <article className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-900">
           {reviewCount} new cases are under review and waiting for repair progress.

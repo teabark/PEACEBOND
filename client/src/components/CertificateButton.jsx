@@ -20,6 +20,7 @@ function CertificateButton({ completedActions, peaceBond, progress }) {
 
   const canSendCompletionSms =
     progress === 100 &&
+    peaceBond.reportSubmitted &&
     peaceBond.grantReleased &&
     completedActions.length === 3 &&
     completedActions.every(Boolean);
@@ -34,8 +35,8 @@ function CertificateButton({ completedActions, peaceBond, progress }) {
 
     if (!canSendCompletionSms) {
       showToast({
-        title: "SMS not sent yet",
-        message: "Completion SMS waits until all repairs are complete and the grant is released.",
+        title: "Certificate not ready",
+        message: "Submit the completion report before releasing grant or certificate.",
         type: "warning",
       });
       return;

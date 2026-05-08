@@ -3,7 +3,9 @@ import usePeaceBonds from "../hooks/usePeaceBonds.js";
 
 function ActiveCases() {
   const { error, isLoading, peaceBonds } = usePeaceBonds();
-  const activePeaceBonds = peaceBonds.filter((peaceBond) => peaceBond.progress < 100);
+  const activePeaceBonds = peaceBonds.filter(
+    (peaceBond) => peaceBond.progress < 100 || !peaceBond.reportSubmitted
+  );
 
   return (
     <ActivePeaceBonds
