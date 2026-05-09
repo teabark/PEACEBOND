@@ -1,11 +1,14 @@
 import { useState } from "react";
 import GuidedDraftingAssistant from "./GuidedDraftingAssistant.jsx";
+import { useI18n } from "./LanguageProvider.jsx";
 
 function HarmForm({ error, isGenerating, onGenerate }) {
+  const { t } = useI18n();
   const [fighterName, setFighterName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [nationality, setNationality] = useState("");
   const [communityType, setCommunityType] = useState("Rural village");
+  const [protectedIdentity, setProtectedIdentity] = useState(false);
   const [skills, setSkills] = useState("");
   const [severity, setSeverity] = useState("moderate");
   const [harmDescription, setHarmDescription] = useState("");
@@ -18,6 +21,7 @@ function HarmForm({ error, isGenerating, onGenerate }) {
       harmDescription,
       nationality,
       phoneNumber,
+      protectedIdentity,
       severity,
       skills,
     });
@@ -29,13 +33,13 @@ function HarmForm({ error, isGenerating, onGenerate }) {
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label className="text-sm font-semibold text-earth-soil" htmlFor="fighter-name">
-              Rehabilitatee name
+              {t("form.fighterName")}
             </label>
             <input
               className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
               id="fighter-name"
               onChange={(event) => setFighterName(event.target.value)}
-              placeholder="Example: Daniel A."
+              placeholder={t("form.placeholderName")}
               type="text"
               value={fighterName}
             />
@@ -43,13 +47,13 @@ function HarmForm({ error, isGenerating, onGenerate }) {
 
           <div>
             <label className="text-sm font-semibold text-earth-soil" htmlFor="phone-number">
-              Phone number
+              {t("form.phoneNumber")}
             </label>
             <input
               className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
               id="phone-number"
               onChange={(event) => setPhoneNumber(event.target.value)}
-              placeholder="Example: +254 700 000 000"
+              placeholder={t("form.placeholderPhone")}
               type="tel"
               value={phoneNumber}
             />
@@ -57,13 +61,13 @@ function HarmForm({ error, isGenerating, onGenerate }) {
 
           <div>
             <label className="text-sm font-semibold text-earth-soil" htmlFor="nationality">
-              Nationality
+              {t("form.nationality")}
             </label>
             <input
               className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
               id="nationality"
               onChange={(event) => setNationality(event.target.value)}
-              placeholder="Example: Kenyan"
+              placeholder={t("form.placeholderNationality")}
               type="text"
               value={nationality}
             />
@@ -73,7 +77,7 @@ function HarmForm({ error, isGenerating, onGenerate }) {
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label className="text-sm font-semibold text-earth-soil" htmlFor="community-type">
-              Community type
+              {t("form.communityType")}
             </label>
             <select
               className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
@@ -81,23 +85,23 @@ function HarmForm({ error, isGenerating, onGenerate }) {
               onChange={(event) => setCommunityType(event.target.value)}
               value={communityType}
             >
-              <option>Rural village</option>
-              <option>Market town</option>
-              <option>Pastoral community</option>
-              <option>Border community</option>
-              <option>Urban settlement</option>
+              <option value="Rural village">{t("form.community.rural")}</option>
+              <option value="Market town">{t("form.community.market")}</option>
+              <option value="Pastoral community">{t("form.community.pastoral")}</option>
+              <option value="Border community">{t("form.community.border")}</option>
+              <option value="Urban settlement">{t("form.community.urban")}</option>
             </select>
           </div>
 
           <div>
             <label className="text-sm font-semibold text-earth-soil" htmlFor="skills">
-              Skills
+              {t("form.skills")}
             </label>
             <input
               className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
               id="skills"
               onChange={(event) => setSkills(event.target.value)}
-              placeholder="Farming, carpentry"
+              placeholder={t("form.placeholderSkills")}
               type="text"
               value={skills}
             />
@@ -105,7 +109,7 @@ function HarmForm({ error, isGenerating, onGenerate }) {
 
           <div>
             <label className="text-sm font-semibold text-earth-soil" htmlFor="severity">
-              Case severity
+              {t("form.severity")}
             </label>
             <select
               className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
@@ -113,25 +117,42 @@ function HarmForm({ error, isGenerating, onGenerate }) {
               onChange={(event) => setSeverity(event.target.value)}
               value={severity}
             >
-              <option value="low">Low</option>
-              <option value="moderate">Moderate</option>
-              <option value="high">High</option>
+              <option value="low">{t("severity.low")}</option>
+              <option value="moderate">{t("severity.moderate")}</option>
+              <option value="high">{t("severity.high")}</option>
             </select>
             <p className="mt-2 text-xs leading-5 text-stone-500">
-              Severity determines the depth of repair and support, not punishment.
+              {t("form.severityHelper")}
             </p>
           </div>
         </div>
 
+        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-earth-olive/20 bg-earth-sand/60 p-4 transition hover:border-earth-olive/40">
+          <input
+            checked={protectedIdentity}
+            className="mt-1 h-5 w-5 rounded border-stone-300 text-earth-olive focus:ring-earth-olive"
+            onChange={(event) => setProtectedIdentity(event.target.checked)}
+            type="checkbox"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-earth-soil">
+              {t("identity.enable")}
+            </span>
+            <span className="mt-1 block text-sm leading-6 text-stone-600">
+              {t("identity.helper")}
+            </span>
+          </span>
+        </label>
+
         <div>
           <label className="text-sm font-semibold text-earth-soil" htmlFor="harm-description">
-            Harm description
+            {t("form.harmDescription")}
           </label>
           <textarea
             className="mt-2 min-h-44 w-full resize-y rounded-lg border border-stone-300 bg-white px-4 py-3 text-base leading-7 text-stone-800 shadow-inner outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
             id="harm-description"
             onChange={(event) => setHarmDescription(event.target.value)}
-            placeholder="Example: A fight at the market left one family afraid to return."
+            placeholder={t("form.harmPlaceholder")}
             value={harmDescription}
           />
           <GuidedDraftingAssistant
@@ -144,7 +165,7 @@ function HarmForm({ error, isGenerating, onGenerate }) {
             }}
             currentValue={harmDescription}
             fieldType="harmDescription"
-            helperText="Need help wording the harm description?"
+            helperText={t("draft.helpHarm")}
             onUseDraft={setHarmDescription}
           />
         </div>
@@ -160,7 +181,7 @@ function HarmForm({ error, isGenerating, onGenerate }) {
           disabled={isGenerating}
           type="submit"
         >
-          {isGenerating ? "Preparing PeaceBond..." : "Generate PeaceBond"}
+          {isGenerating ? t("form.preparing") : t("form.generate")}
         </button>
       </form>
     </section>

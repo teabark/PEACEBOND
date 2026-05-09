@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { useI18n } from "./LanguageProvider.jsx";
 
 const ToastContext = createContext(null);
 
@@ -10,6 +11,7 @@ const toastStyles = {
 };
 
 function ToastProvider({ children }) {
+  const { t } = useI18n();
   const [toasts, setToasts] = useState([]);
 
   const removeToast = useCallback((toastId) => {
@@ -73,12 +75,12 @@ function ToastProvider({ children }) {
                 )}
               </div>
               <button
-                aria-label="Dismiss notification"
+                aria-label={t("app.dismissNotification")}
                 className="rounded-md px-2 py-1 text-xs font-semibold opacity-70 transition hover:bg-white/60 hover:opacity-100"
                 onClick={() => removeToast(toast.id)}
                 type="button"
               >
-                Close
+                {t("app.close")}
               </button>
             </div>
           </article>

@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import HarmForm from "../components/HarmForm.jsx";
+import { useI18n } from "../components/LanguageProvider.jsx";
 import MockWhatsAppNotice from "../components/MockWhatsAppNotice.jsx";
 import PeaceBondCard from "../components/PeaceBondCard.jsx";
 import { useToast } from "../components/ToastProvider.jsx";
 import { createPeaceBond } from "../utils/api.js";
 import { getStaffUser } from "../utils/auth.js";
 import { addNotification } from "../utils/notifications.js";
+import { translateCommunityType } from "../utils/peacebondContent.js";
+import { getSharedDisplayName, getSharedPhoneNumber } from "../utils/protectedIdentity.js";
 
 function CreatePeaceBond() {
   const staffUser = getStaffUser();
+  const { language, t } = useI18n();
   const { showToast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState("");
@@ -23,14 +27,15 @@ function CreatePeaceBond() {
     harmDescription,
     nationality,
     phoneNumber,
+    protectedIdentity,
     severity,
     skills,
   }) {
     if (!staffUser?._id) {
-      const sessionMessage = "No logged-in staff user found.";
+      const sessionMessage = t("form.errorNoSession");
       setError(sessionMessage);
       showToast({
-        title: "Session missing",
+        title: t("toast.sessionMissing"),
         message: sessionMessage,
         type: "error",
       });
@@ -49,42 +54,48 @@ function CreatePeaceBond() {
         createdBy: staffUser._id,
         fighterName,
         harmDescription,
+        language,
         nationality,
         phoneNumber,
+        protectedIdentity,
         severity,
         skills,
       });
       setCreatedPeaceBond(peaceBond);
+      const sharedName = getSharedDisplayName(peaceBond, t);
       addNotification({
-        title: "PeaceBond created",
-        message: `${peaceBond.fighterName} received a ${peaceBond.severity} repair pathway for ${peaceBond.communityType}.`,
+        title: t("toast.caseCreated"),
+        message: t("notification.caseCreated", {
+          community: translateCommunityType(peaceBond.communityType, language),
+          name: sharedName,
+          severity: t(`severity.${peaceBond.severity}`),
+        }),
         type: "case",
       });
-      setSuccessMessage("PeaceBond created and added to Active Cases.");
+      setSuccessMessage(t("create.createdMessage"));
       setCreatedWhatsApp({
-        message:
-          "Your PeaceBond has been created. A community repair plan has begun for you. Please work with your mediator to complete the proposed rehabilitation actions.",
-        name: peaceBond.fighterName,
-        phoneNumber: peaceBond.phoneNumber,
+        message: t("message.peacebondCreated"),
+        name: sharedName,
+        phoneNumber: getSharedPhoneNumber(peaceBond, t("whatsapp.noPhone")),
         sentAt: new Date().toISOString(),
       });
       showToast({
-        title: "PeaceBond created",
-        message: `${peaceBond.fighterName} has a repair pathway ready to track.`,
+        title: t("toast.caseCreated"),
+        message: t("toast.caseCreatedMessage", { name: sharedName }),
         type: "success",
       });
       showToast({
-        title: "Mock WhatsApp Sent",
-        message: "WhatsApp message sent to rehabilitatee.",
+        title: t("toast.mockWhatsApp"),
+        message: t("toast.mockWhatsAppCreated"),
         type: "success",
       });
     } catch (requestError) {
       const errorMessage =
         requestError.response?.data?.message ||
-        "PeaceBond could not be created. Please check the backend connection.";
+        t("form.submitError");
       setError(errorMessage);
       showToast({
-        title: "PeaceBond not created",
+        title: t("toast.caseNotCreated"),
         message: errorMessage,
         type: "error",
       });
@@ -95,10 +106,10 @@ function CreatePeaceBond() {
 
   return (
     <div className="max-w-3xl">
-      <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">New case</p>
-      <h1 className="mt-2 text-3xl font-semibold">Create PeaceBond</h1>
+      <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">{t("create.newCase")}</p>
+      <h1 className="mt-2 text-3xl font-semibold">{t("create.title")}</h1>
       <p className="mt-3 text-base leading-7 text-stone-600">
-        Prepare a repair pathway with dignity, a community ritual, and mock grant support.
+        {t("create.description")}
       </p>
 
       <div className="mt-6">
@@ -126,7 +137,7 @@ function CreatePeaceBond() {
             className="w-fit rounded-lg bg-earth-clay px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#9f6141]"
             to={`/dashboard/peacebonds/${createdPeaceBond._id}`}
           >
-            Open repair workspace
+            {t("create.openWorkspace")}
           </Link>
         </div>
       )}

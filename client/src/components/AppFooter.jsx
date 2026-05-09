@@ -1,32 +1,34 @@
 import { useLocation } from "react-router-dom";
+import { useI18n } from "./LanguageProvider.jsx";
 import { getStaffName, isStaffLoggedIn } from "../utils/auth.js";
 
-function getFooterText(pathname) {
+function getFooterText(pathname, t) {
   if (!isStaffLoggedIn()) {
-    return "PeaceBond — A Dignified Path Home";
+    return t("footer.landing");
   }
 
   if (pathname.includes("/create")) {
-    return "PeaceBond • Guided by dignity, repair, and community";
+    return t("footer.create");
   }
 
   if (pathname.includes("/active") || pathname.includes("/peacebonds")) {
-    return "PeaceBond • Restorative reintegration in progress";
+    return t("footer.active");
   }
 
   if (pathname.includes("/completed")) {
-    return "PeaceBond • Repair completed, dignity affirmed";
+    return t("footer.completed");
   }
 
-  return `PeaceBond • Peace Mediator: ${getStaffName()}`;
+  return t("footer.mediator", { name: getStaffName() });
 }
 
 function AppFooter() {
   const { pathname } = useLocation();
+  const { t } = useI18n();
 
   return (
     <footer className="border-t border-earth-soil/10 bg-[#efe3d3] px-4 py-4 text-center text-sm text-stone-600 sm:px-6">
-      <p>{getFooterText(pathname)}</p>
+      <p>{getFooterText(pathname, t)}</p>
     </footer>
   );
 }

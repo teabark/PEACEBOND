@@ -1,3 +1,6 @@
+import { useI18n } from "./LanguageProvider.jsx";
+import { getSharedDisplayName } from "../utils/protectedIdentity.js";
+
 function getDaysOpen(createdAt) {
   if (!createdAt) {
     return 1;
@@ -9,16 +12,21 @@ function getDaysOpen(createdAt) {
   return Math.max(days, 1);
 }
 
-function buildStories(peaceBonds) {
+function buildStories(peaceBonds, t) {
   const completedStories = peaceBonds
     .filter((peaceBond) => peaceBond.reportSubmitted)
     .slice(0, 2)
-    .map((peaceBond) => ({
-      title: `${peaceBond.fighterName} completed reintegration`,
-      text: `${peaceBond.fighterName} completed reintegration after ${getDaysOpen(
-        peaceBond.createdAt
-      )} days of community repair work.`,
-    }));
+    .map((peaceBond) => {
+      const displayName = getSharedDisplayName(peaceBond, t);
+
+      return {
+        title: t("impact.completedTitle", { name: displayName }),
+        text: t("impact.completedText", {
+          days: getDaysOpen(peaceBond.createdAt),
+          name: displayName,
+        }),
+      };
+    });
 
   if (completedStories.length > 0) {
     return completedStories;
@@ -31,33 +39,34 @@ function buildStories(peaceBonds) {
   if (activeCount > 0) {
     return [
       {
-        title: "Repair journeys underway",
-        text: `${activeCount} PeaceBonds currently active in this region.`,
+        title: t("impact.underwayTitle"),
+        text: t("impact.underwayText", { count: activeCount }),
       },
       {
-        title: "Community trust being rebuilt",
-        text: "Each open case represents a step toward accountability, listening, and return.",
+        title: t("impact.trustTitle"),
+        text: t("impact.trustText"),
       },
     ];
   }
 
   return [
     {
-      title: "Awaiting the first repair story",
-      text: "Create a PeaceBond to begin documenting repair, ritual, grant support, and return.",
+      title: t("impact.awaitingTitle"),
+      text: t("impact.awaitingText"),
     },
   ];
 }
 
 function ImpactStoryPanel({ peaceBonds }) {
-  const stories = buildStories(peaceBonds);
+  const { t } = useI18n();
+  const stories = buildStories(peaceBonds, t);
 
   return (
     <section className="rounded-lg border border-stone-200 bg-white/90 p-6 shadow-sm">
       <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">
-        Peace Impact Story Panel
+        {t("impact.panelTitle")}
       </p>
-      <h2 className="mt-2 text-2xl font-semibold">Stories of repair and return</h2>
+      <h2 className="mt-2 text-2xl font-semibold">{t("impact.storySubtitle")}</h2>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         {stories.map((story) => (

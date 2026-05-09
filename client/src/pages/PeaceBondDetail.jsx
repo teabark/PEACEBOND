@@ -2,36 +2,40 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import CertificateButton from "../components/CertificateButton.jsx";
 import GrantNotice from "../components/GrantNotice.jsx";
+import { useI18n } from "../components/LanguageProvider.jsx";
 import PeaceBondCard from "../components/PeaceBondCard.jsx";
 import ProgressTracker from "../components/ProgressTracker.jsx";
+import ProtectedIdentityBadge from "../components/ProtectedIdentityBadge.jsx";
 import StaffCompletionReport from "../components/StaffCompletionReport.jsx";
 import { useToast } from "../components/ToastProvider.jsx";
 import { getPeaceBond, submitCompletionReport, updatePeaceBondProgress } from "../utils/api.js";
 import { getStaffUser } from "../utils/auth.js";
 import { addNotification } from "../utils/notifications.js";
+import { getParticipantId, isProtectedIdentity } from "../utils/protectedIdentity.js";
 
 function calculateProgress(completedActions) {
   const completedCount = completedActions.filter(Boolean).length;
   return Math.round((completedCount / 3) * 100);
 }
 
-function buildProgressMessage(completedActions) {
+function buildProgressMessage(completedActions, t) {
   const completedCount = completedActions.filter(Boolean).length;
 
   if (completedCount === 0) {
-    return "No repair actions have been completed yet.";
+    return t("progress.none");
   }
 
   if (completedCount === 3) {
-    return "All repair actions are complete.";
+    return t("progress.all");
   }
 
-  return `${completedCount} of 3 repair actions completed.`;
+  return t("progress.partial", { count: completedCount });
 }
 
 function PeaceBondDetail() {
   const { id } = useParams();
   const staffUser = getStaffUser();
+  const { t } = useI18n();
   const { showToast } = useToast();
   const [peaceBond, setPeaceBond] = useState(null);
   const [completedActions, setCompletedActions] = useState([false, false, false]);
@@ -42,17 +46,17 @@ function PeaceBondDetail() {
 
   const progress = useMemo(() => calculateProgress(completedActions), [completedActions]);
   const progressMessage = useMemo(
-    () => buildProgressMessage(completedActions),
-    [completedActions]
+    () => buildProgressMessage(completedActions, t),
+    [completedActions, t]
   );
 
   useEffect(() => {
     async function loadPeaceBond() {
       if (!staffUser?._id) {
-        const sessionMessage = "No logged-in staff user found.";
+        const sessionMessage = t("form.errorNoSession");
         setError(sessionMessage);
         showToast({
-          title: "Session missing",
+          title: t("toast.sessionMissing"),
           message: sessionMessage,
           type: "error",
         });
@@ -69,10 +73,10 @@ function PeaceBondDetail() {
       } catch (requestError) {
         const errorMessage =
           requestError.response?.data?.message ||
-          "Could not load this PeaceBond. Please check the backend connection.";
+          t("workspace.loadError");
         setError(errorMessage);
         showToast({
-          title: "PeaceBond could not load",
+          title: t("workspace.loadErrorTitle"),
           message: errorMessage,
           type: "error",
         });
@@ -82,7 +86,7 @@ function PeaceBondDetail() {
     }
 
     loadPeaceBond();
-  }, [id, staffUser?._id]);
+  }, [id, staffUser?._id, showToast, t]);
 
   async function handleToggleAction(actionIndex) {
     if (!peaceBond || !staffUser?._id) {
@@ -110,20 +114,20 @@ function PeaceBondDetail() {
 
       if (previousProgress < 100 && updatedPeaceBond.progress === 100) {
         addNotification({
-          title: "Completion review needed",
-          message: `${updatedPeaceBond.fighterName} completed all repair actions. Staff review is needed before grant and certificate release.`,
+          title: t("report.lockedTitle"),
+          message: t("report.lockedMessage"),
           type: "review",
         });
         showToast({
-          title: "Repair actions complete",
-          message: "Submit the completion report before releasing grant or certificate.",
+          title: t("toast.repairActionsComplete"),
+          message: t("report.lockedMessage"),
           type: "success",
           duration: 6200,
         });
       } else {
         showToast({
-          title: "Progress saved",
-          message: `${updatedPeaceBond.progress}% of repair actions completed.`,
+          title: t("progress.saved"),
+          message: t("workspace.progressMessage", { progress: updatedPeaceBond.progress }),
           type: "success",
         });
       }
@@ -131,10 +135,10 @@ function PeaceBondDetail() {
       setCompletedActions(previousActions);
       const errorMessage =
         requestError.response?.data?.message ||
-        "Could not save progress. Please check the backend connection.";
+        t("workspace.saveError");
       setError(errorMessage);
       showToast({
-        title: "Progress not saved",
+        title: t("toast.progressNotSaved"),
         message: errorMessage,
         type: "error",
       });
@@ -159,23 +163,23 @@ function PeaceBondDetail() {
       );
       setPeaceBond(updatedPeaceBond);
       addNotification({
-        title: "Completion report submitted",
-        message: `${updatedPeaceBond.fighterName} has been reviewed. Mock grant and certificate are now available.`,
+        title: t("toast.completionReportSubmitted"),
+        message: t("toast.completionReportSubmittedMessage"),
         type: "grant",
       });
       showToast({
-        title: "Completion report submitted",
-        message: "Completion report submitted. Grant and certificate are now available.",
+        title: t("toast.completionReportSubmitted"),
+        message: t("toast.completionReportSubmittedMessage"),
         type: "success",
         duration: 6200,
       });
     } catch (requestError) {
       const errorMessage =
         requestError.response?.data?.message ||
-        "Could not submit the completion report. Please check the backend connection.";
+        t("workspace.reportError");
       setError(errorMessage);
       showToast({
-        title: "Report not submitted",
+        title: t("toast.reportNotSubmitted"),
         message: errorMessage,
         type: "error",
       });
@@ -187,7 +191,7 @@ function PeaceBondDetail() {
   if (isLoading) {
     return (
       <section className="rounded-lg border border-stone-200 bg-white/90 p-6 shadow-sm">
-        <p className="text-sm font-semibold text-stone-600">Loading PeaceBond...</p>
+        <p className="text-sm font-semibold text-stone-600">{t("workspace.loading")}</p>
       </section>
     );
   }
@@ -200,7 +204,7 @@ function PeaceBondDetail() {
           className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-red-800"
           to="/dashboard/active"
         >
-          Back to active cases
+          {t("workspace.backActive")}
         </Link>
       </section>
     );
@@ -211,24 +215,31 @@ function PeaceBondDetail() {
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">
-            Repair workspace
+            {t("workspace.title")}
           </p>
           <h1 className="mt-2 text-3xl font-semibold">{peaceBond.fighterName}</h1>
+          {isProtectedIdentity(peaceBond) && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <ProtectedIdentityBadge />
+              <span className="rounded-full bg-earth-sand px-3 py-1 text-xs font-semibold text-earth-soil">
+                {t("identity.participantId")}: {getParticipantId(peaceBond) || t("app.notRecorded")}
+              </span>
+            </div>
+          )}
           {peaceBond.nationality && (
             <p className="mt-2 text-sm font-semibold text-earth-olive">
-              Nationality: {peaceBond.nationality}
+              {t("card.nationality")}: {peaceBond.nationality}
             </p>
           )}
           <p className="mt-2 text-sm leading-6 text-stone-600">
-            Track each repair action with care. When repair reaches 100%, staff complete a short
-            review before the mock grant and certificate are released.
+            {t("workspace.subtitle")}
           </p>
         </div>
         <Link
           className="w-fit rounded-lg border border-earth-soil/20 px-4 py-3 text-sm font-semibold text-earth-soil transition hover:border-earth-clay hover:text-earth-clay"
           to="/dashboard/active"
         >
-          Back to cases
+          {t("workspace.back")}
         </Link>
       </header>
 
@@ -262,7 +273,7 @@ function PeaceBondDetail() {
 
       {progress === 100 && peaceBond.reportSubmitted && (
         <div className="grid gap-5 lg:grid-cols-2">
-          <GrantNotice grant={peaceBond.grant} />
+          <GrantNotice grant={peaceBond.grant} peaceBond={peaceBond} />
           <CertificateButton
             completedActions={completedActions}
             peaceBond={peaceBond}

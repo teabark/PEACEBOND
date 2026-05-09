@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import LanguageSelector from "../components/LanguageSelector.jsx";
 import LeafLogo from "../components/LeafLogo.jsx";
+import { useI18n } from "../components/LanguageProvider.jsx";
 import { useToast } from "../components/ToastProvider.jsx";
 import { loginStaff } from "../utils/auth.js";
 import { loginStaffUser } from "../utils/api.js";
@@ -10,28 +12,29 @@ const demoStaffAccounts = [
   {
     name: "Alice Kamau",
     email: "alice@peacebond.org",
+    focusKey: "login.demo.alice.focus",
     password: "123456",
-    title: "Livestock and Land Repair Mediator",
-    focus: "Pastoral communities and restitution",
+    titleKey: "login.demo.alice.title",
   },
   {
     name: "John Mwangi",
     email: "john@peacebond.org",
+    focusKey: "login.demo.john.focus",
     password: "123456",
-    title: "Fishing Livelihoods Mediator",
-    focus: "Coastal reconciliation and repair",
+    titleKey: "login.demo.john.title",
   },
   {
     name: "Fatima Noor",
     email: "fatima@peacebond.org",
+    focusKey: "login.demo.fatima.focus",
     password: "123456",
-    title: "Youth Reintegration Mediator",
-    focus: "Anti-recruitment and nonviolence mentoring",
+    titleKey: "login.demo.fatima.title",
   },
 ];
 
 function Login() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,10 +45,10 @@ function Login() {
     setError("");
 
     if (!nextEmail.trim() || !nextPassword.trim()) {
-      const validationMessage = "Enter a staff email and password to continue.";
+      const validationMessage = t("login.errorDetails");
       setError(validationMessage);
       showToast({
-        title: "Login needs details",
+        title: t("login.needsDetails"),
         message: validationMessage,
         type: "warning",
       });
@@ -58,23 +61,23 @@ function Login() {
       const staff = await loginStaffUser(nextEmail, nextPassword);
       loginStaff(staff);
       addNotification({
-        title: "Staff login",
-        message: `${staff.name} signed in to continue PeaceBond case work.`,
+        title: t("login.welcome"),
+        message: t("toast.welcomeBack", { name: staff.name }),
         type: "login",
       });
       showToast({
-        title: "Welcome back",
-        message: `${staff.name} can now continue PeaceBond case work.`,
+        title: t("login.welcome"),
+        message: t("toast.welcomeBack", { name: staff.name }),
         type: "success",
       });
       navigate("/dashboard");
     } catch (requestError) {
       const errorMessage =
         requestError.response?.data?.message ||
-        "Login failed. Check your staff credentials and MongoDB connection.";
+        t("login.failedMessage");
       setError(errorMessage);
       showToast({
-        title: "Login failed",
+        title: t("login.failed"),
         message: errorMessage,
         type: "error",
       });
@@ -100,7 +103,7 @@ function Login() {
         className="absolute left-5 top-5 inline-flex items-center rounded-full border border-earth-soil/15 bg-white/50 px-4 py-2 text-sm font-semibold text-earth-soil shadow-sm transition hover:border-earth-clay hover:bg-white hover:text-earth-clay sm:left-8 sm:top-8"
         to="/"
       >
-        Back to PeaceBond
+        {t("login.back")}
       </Link>
 
       <section className="animate-fade-up w-full max-w-md">
@@ -110,25 +113,28 @@ function Login() {
               <LeafLogo className="h-11 w-11" />
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">
-                  Staff access
+                  {t("login.access")}
                 </p>
                 <p className="mt-1 text-sm text-stone-500">PeaceBond</p>
               </div>
             </div>
           </div>
 
-          <h1 className="mt-6 text-3xl font-semibold">Mediator login</h1>
+          <h1 className="mt-6 text-3xl font-semibold">{t("login.title")}</h1>
           <p className="mt-3 text-base leading-7 text-stone-600">
-            Sign in to prepare PeaceBonds and support community repair cases.
+            {t("login.subtitle")}
           </p>
           <p className="mt-3 rounded-lg bg-earth-sand/75 px-4 py-3 text-sm leading-6 text-stone-700">
-            Guided by dignity, repair, and community return.
+            {t("login.guided")}
           </p>
+          <div className="mt-4">
+            <LanguageSelector />
+          </div>
 
           <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
             <div>
               <label className="text-sm font-semibold" htmlFor="email">
-                Email
+                {t("login.email")}
               </label>
               <input
                 className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
@@ -142,13 +148,13 @@ function Login() {
 
             <div>
               <label className="text-sm font-semibold" htmlFor="password">
-                Password
+                {t("login.password")}
               </label>
               <input
                 className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
                 id="password"
                 onChange={(event) => setPassword(event.target.value)}
-                placeholder="Demo: peacebond123"
+                placeholder="Demo: 123456"
                 type="password"
                 value={password}
               />
@@ -165,12 +171,12 @@ function Login() {
               disabled={isSubmitting}
               type="submit"
             >
-              {isSubmitting ? "Checking credentials..." : "Login"}
+              {isSubmitting ? t("login.checking") : t("login.login")}
             </button>
           </form>
 
           <div className="mt-5 rounded-lg border border-earth-clay/20 bg-earth-sand/70 p-4">
-            <p className="text-sm font-semibold text-earth-soil">Demo staff accounts</p>
+            <p className="text-sm font-semibold text-earth-soil">{t("login.demoAccounts")}</p>
             <div className="mt-3 grid gap-2">
               {demoStaffAccounts.map((account) => (
                 <button
@@ -184,9 +190,9 @@ function Login() {
                     {account.name}
                   </span>
                   <span className="mt-1 block text-xs font-semibold text-earth-olive">
-                    {account.title}
+                    {t(account.titleKey)}
                   </span>
-                  <span className="mt-1 block text-xs text-stone-600">{account.focus}</span>
+                  <span className="mt-1 block text-xs text-stone-600">{t(account.focusKey)}</span>
                   <span className="block text-sm text-stone-600">{account.email}</span>
                 </button>
               ))}

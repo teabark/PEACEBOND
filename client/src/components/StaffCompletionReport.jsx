@@ -1,5 +1,6 @@
 import { useState } from "react";
 import GuidedDraftingAssistant from "./GuidedDraftingAssistant.jsx";
+import { useI18n } from "./LanguageProvider.jsx";
 import { useToast } from "./ToastProvider.jsx";
 
 function StaffCompletionReport({
@@ -9,6 +10,7 @@ function StaffCompletionReport({
   peaceBond,
   progress,
 }) {
+  const { t } = useI18n();
   const { showToast } = useToast();
   const [reportSummary, setReportSummary] = useState("");
   const [communityResponse, setCommunityResponse] = useState("");
@@ -25,8 +27,8 @@ function StaffCompletionReport({
 
   function handleLockedAction() {
     showToast({
-      title: "Completion review needed",
-      message: "Submit the completion report before releasing grant or certificate.",
+      title: t("report.lockedTitle"),
+      message: t("report.lockedMessage"),
       type: "warning",
     });
   }
@@ -40,71 +42,72 @@ function StaffCompletionReport({
   return (
     <section className="rounded-lg border border-earth-clay/20 bg-white/90 p-5 shadow-sm sm:p-6">
       <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">
-        Staff Completion Report
+        {t("report.title")}
       </p>
-      <h2 className="mt-2 text-2xl font-semibold text-earth-soil">Completion Review</h2>
+      <h2 className="mt-2 text-2xl font-semibold text-earth-soil">
+        {t("report.completionReview")}
+      </h2>
       <p className="mt-2 text-sm leading-6 text-stone-600">
-        Confirm the repair pathway with care before the mock grant and certificate are made
-        available.
+        {t("report.description")}
       </p>
 
       <form className="mt-5 flex flex-col gap-4" onSubmit={handleSubmit}>
         <div>
           <label className="text-sm font-semibold text-earth-soil" htmlFor="report-summary">
-            Completion Review
+            {t("report.completionReview")}
           </label>
           <textarea
             className="mt-2 min-h-24 w-full resize-y rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
             id="report-summary"
             onChange={(event) => setReportSummary(event.target.value)}
-            placeholder="Summarize the repair work completed..."
+            placeholder={t("report.reviewPlaceholder")}
             value={reportSummary}
           />
           <GuidedDraftingAssistant
             context={draftingContext}
             currentValue={reportSummary}
             fieldType="completionReview"
-            helperText="Need help drafting the completion review?"
+            helperText={t("draft.helpReview")}
             onUseDraft={setReportSummary}
           />
         </div>
 
         <div>
           <label className="text-sm font-semibold text-earth-soil" htmlFor="community-response">
-            Community Acknowledgment
+            {t("report.acknowledgment")}
           </label>
           <textarea
             className="mt-2 min-h-24 w-full resize-y rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
             id="community-response"
             onChange={(event) => setCommunityResponse(event.target.value)}
-            placeholder="How did the community respond?"
+            placeholder={t("report.ackPlaceholder")}
             value={communityResponse}
           />
           <GuidedDraftingAssistant
             context={draftingContext}
             currentValue={communityResponse}
             fieldType="communityAcknowledgment"
-            helperText="Need help drafting the community acknowledgment?"
+            helperText={t("draft.helpAcknowledgment")}
             onUseDraft={setCommunityResponse}
           />
         </div>
 
         <div>
           <label className="text-sm font-semibold text-earth-soil" htmlFor="staff-recommendation">
-            Staff Recommendation
+            {t("report.recommendation")}
           </label>
           <textarea
             className="mt-2 min-h-20 w-full resize-y rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
             id="staff-recommendation"
             onChange={(event) => setStaffRecommendation(event.target.value)}
-            placeholder="Recommend grant release and certificate issuance?"
+            placeholder={t("report.recommendationPlaceholder")}
             value={staffRecommendation}
           />
           <GuidedDraftingAssistant
             context={draftingContext}
             currentValue={staffRecommendation}
             fieldType="staffRecommendation"
-            helperText="Need help drafting the staff recommendation?"
+            helperText={t("draft.helpRecommendation")}
             onUseDraft={setStaffRecommendation}
           />
         </div>
@@ -115,14 +118,14 @@ function StaffCompletionReport({
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? "Submitting review..." : "Submit completion report"}
+            {isSubmitting ? t("report.submitting") : t("report.submit")}
           </button>
           <button
             className="rounded-lg border border-earth-soil/20 px-5 py-3 text-sm font-semibold text-earth-soil transition hover:border-earth-clay hover:text-earth-clay"
             onClick={handleLockedAction}
             type="button"
           >
-            Grant and certificate unavailable
+            {t("report.lockedButton")}
           </button>
         </div>
       </form>

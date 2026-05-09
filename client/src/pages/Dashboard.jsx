@@ -2,9 +2,14 @@ import { useMemo } from "react";
 import ActivePeaceBonds from "../components/ActivePeaceBonds.jsx";
 import ImpactStatCard from "../components/ImpactStatCard.jsx";
 import ImpactStoryPanel from "../components/ImpactStoryPanel.jsx";
+import { useI18n } from "../components/LanguageProvider.jsx";
+import ProtectedIdentityBadge from "../components/ProtectedIdentityBadge.jsx";
 import usePeaceBonds from "../hooks/usePeaceBonds.js";
+import { translateCaseTitle } from "../utils/peacebondContent.js";
+import { getSharedDisplayName, isProtectedIdentity } from "../utils/protectedIdentity.js";
 
 function Dashboard() {
+  const { language, t } = useI18n();
   const { error, isLoading, peaceBonds } = usePeaceBonds();
 
   const impactStats = useMemo(() => {
@@ -22,31 +27,31 @@ function Dashboard() {
 
     return [
       {
-        label: "PeaceBonds Created",
+        label: t("dashboard.statCreated"),
         value: peaceBonds.length,
       },
       {
-        label: "Active Cases",
+        label: t("dashboard.statActive"),
         value: activePeaceBonds.length,
       },
       {
-        label: "Completed Reintegration",
+        label: t("dashboard.statCompleted"),
         value: completedPeaceBonds.length,
       },
       {
-        label: "Repairs Completed",
+        label: t("dashboard.statRepairs"),
         value: completedRepairs,
       },
       {
-        label: "Grants Released (mock)",
+        label: t("dashboard.statGrants"),
         value: peaceBonds.filter((peaceBond) => peaceBond.grantReleased).length,
       },
       {
-        label: "Communities Impacted",
+        label: t("dashboard.statCommunities"),
         value: communityTypes.size,
       },
     ];
-  }, [peaceBonds]);
+  }, [peaceBonds, t]);
 
   const activePeaceBonds = peaceBonds
     .filter((peaceBond) => peaceBond.progress < 100 || !peaceBond.reportSubmitted)
@@ -63,39 +68,48 @@ function Dashboard() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
         <ActivePeaceBonds
-          emptyMessage="No active repair journeys need attention right now."
+          emptyMessage={t("dashboard.emptyActive")}
           error={error}
           isLoading={isLoading}
           peaceBonds={activePeaceBonds}
-          subtitle="Cases needing mediator attention"
-          title="Active PeaceBond Summary"
+          subtitle={t("dashboard.casesNeedAttention")}
+          title={t("dashboard.activeSummary")}
         />
 
         <section className="rounded-lg border border-stone-200 bg-white/90 p-5 shadow-sm sm:p-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">
-            Recent Activity
+            {t("dashboard.recentActivity")}
           </p>
           <div className="mt-5 flex flex-col gap-3">
             {recentPeaceBonds.length === 0 ? (
               <p className="text-sm leading-6 text-stone-600">
-                Recent PeaceBond activity will appear here.
+                {t("dashboard.recentEmpty")}
               </p>
             ) : (
-              recentPeaceBonds.map((peaceBond) => (
-                <article className="rounded-lg bg-earth-sand/70 p-4" key={peaceBond._id}>
-                  <p className="text-sm font-semibold text-earth-soil">
-                    {peaceBond.fighterName}
-                  </p>
-                  {peaceBond.nationality && (
+              recentPeaceBonds.map((peaceBond) => {
+                const protectedCase = isProtectedIdentity(peaceBond);
+
+                return (
+                  <article className="rounded-lg bg-earth-sand/70 p-4" key={peaceBond._id}>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-semibold text-earth-soil">
+                      {getSharedDisplayName(peaceBond, t)}
+                    </p>
+                    {protectedCase && <ProtectedIdentityBadge />}
+                  </div>
+                  {!protectedCase && peaceBond.nationality && (
                     <p className="mt-1 text-xs font-semibold text-earth-olive">
-                      Nationality: {peaceBond.nationality}
+                      {t("card.nationality")}: {peaceBond.nationality}
                     </p>
                   )}
                   <p className="mt-1 text-xs capitalize text-stone-600">
-                    {peaceBond.category.replaceAll("_", " ")} - {peaceBond.progress}% complete
+                    {translateCaseTitle(peaceBond, language)} - {t("progress.complete", {
+                      progress: peaceBond.progress,
+                    })}
                   </p>
                 </article>
-              ))
+                );
+              })
             )}
           </div>
         </section>

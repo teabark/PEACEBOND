@@ -15,6 +15,12 @@ function hasText(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+function buildParticipantId(id) {
+  const year = new Date().getFullYear();
+  const suffix = Number.parseInt(id.toString().slice(-8), 16) % 1000000;
+  return `PB-${year}-${String(suffix).padStart(6, "0")}`;
+}
+
 async function listPeaceBonds(req, res) {
   const { createdBy } = req.query;
 
@@ -36,8 +42,10 @@ async function createPeaceBond(req, res) {
     createdBy,
     fighterName,
     harmDescription,
+    language,
     nationality,
     phoneNumber,
+    protectedIdentity,
     severity = "moderate",
     skills,
   } = req.body;
@@ -68,10 +76,16 @@ async function createPeaceBond(req, res) {
     return res.status(404).json({ message: "Staff user not found." });
   }
 
+  const peaceBondId = new mongoose.Types.ObjectId();
+  const isProtectedIdentity = protectedIdentity === true;
+
   const peaceBond = await PeaceBond.create({
-    ...generatePeaceBond({ fighterName, harmDescription, severity, skills }),
+    _id: peaceBondId,
+    ...generatePeaceBond({ fighterName, harmDescription, language, severity, skills }),
     phoneNumber: typeof phoneNumber === "string" ? phoneNumber.trim() : "",
     nationality: typeof nationality === "string" ? nationality.trim() : "",
+    protectedIdentity: isProtectedIdentity,
+    participantId: isProtectedIdentity ? buildParticipantId(peaceBondId) : "",
     communityType: typeof communityType === "string" && communityType.trim()
       ? communityType.trim()
       : "General community",

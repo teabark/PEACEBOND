@@ -22,6 +22,15 @@ const peaceBondSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    protectedIdentity: {
+      type: Boolean,
+      default: false,
+    },
+    participantId: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     communityType: {
       type: String,
       trim: true,
@@ -45,6 +54,16 @@ const peaceBondSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
+    },
+    caseTitle: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    language: {
+      type: String,
+      enum: ["en", "sw", "fr", "pt", "ar"],
+      default: "en",
     },
     repairActions: {
       type: [String],

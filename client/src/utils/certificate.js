@@ -1,5 +1,21 @@
 import { jsPDF } from "jspdf";
 import { getStaffName } from "./auth.js";
+import { getLanguageConfig, getStoredLanguage, translateWithFallback } from "./i18n.js";
+import {
+  getLocalizedPeaceBond,
+  translateCommunityType,
+  translateCategory,
+  translateGrantPurpose,
+  translateRepairActions,
+  translateRitual,
+  translateSeverity,
+} from "./peacebondContent.js";
+import {
+  getCertificateSubject,
+  getParticipantId,
+  getParticipantReference,
+  isProtectedIdentity,
+} from "./protectedIdentity.js";
 
 const PAGE = {
   height: 297,
@@ -37,44 +53,59 @@ function formatLabel(value) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function formatDate(value) {
+function formatDate(value, language = "en") {
   const date = value ? new Date(value) : new Date();
+  const locale = getLanguageConfig(language).locale;
 
   if (Number.isNaN(date.getTime())) {
-    return new Date().toLocaleDateString(undefined, {
+    return new Date().toLocaleDateString(locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
     });
   }
 
-  return date.toLocaleDateString(undefined, {
+  return date.toLocaleDateString(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
 }
 
-function getCompletionDate(peaceBond) {
+function getCompletionDate(peaceBond, language) {
   return formatDate(
     peaceBond.completedAt ||
       peaceBond.reportSubmittedAt ||
       peaceBond.grantReleasedAt ||
       peaceBond.updatedAt ||
-      new Date()
+      new Date(),
+    language
   );
 }
 
-function getGrant(peaceBond) {
+function getGrant(peaceBond, language = "en") {
   return {
     amount: peaceBond.grant?.amount || peaceBond.grantAmount || 0,
     currency: peaceBond.grant?.currency || "USD",
-    purpose: peaceBond.grant?.purpose || peaceBond.grantPurpose || "reintegration support",
+    purpose: translateGrantPurpose(peaceBond, language),
   };
 }
 
-function getReportValue(peaceBond, field, fallback) {
-  return asText(peaceBond.completionReport?.[field], fallback);
+function redactProtectedIdentityText(peaceBond, text, language) {
+  if (!isProtectedIdentity(peaceBond) || !peaceBond.fighterName) {
+    return text;
+  }
+
+  const t = (key, params) => translateWithFallback(language, key, params);
+  return asText(text).replaceAll(peaceBond.fighterName, getParticipantReference(peaceBond, t));
+}
+
+function getReportValue(peaceBond, field, fallback, language = "en") {
+  return redactProtectedIdentityText(
+    peaceBond,
+    asText(peaceBond.completionReport?.[field], fallback),
+    language
+  );
 }
 
 function splitLines(doc, text, maxWidth) {
@@ -188,8 +219,10 @@ function drawInfoCell(doc, label, value, x, y, width) {
   });
 }
 
-function drawRepairActions(doc, peaceBond, completedActions, x, y, width) {
-  drawSectionHeading(doc, "RESTORATIVE REPAIR ACTIONS", x, y, width);
+function drawRepairActions(doc, peaceBond, completedActions, x, y, width, language) {
+  const t = (key, params) => translateWithFallback(language, key, params);
+  const repairActions = translateRepairActions(peaceBond, language);
+  drawSectionHeading(doc, t("certificate.repairActions"), x, y, width);
 
   const boxY = y + 7;
   doc.setFillColor(252, 248, 241);
@@ -199,7 +232,7 @@ function drawRepairActions(doc, peaceBond, completedActions, x, y, width) {
 
   let cursorY = boxY + 10;
 
-  peaceBond.repairActions.forEach((action, index) => {
+  repairActions.forEach((action, index) => {
     const isComplete = completedActions[index];
     doc.setDrawColor(...COLORS.olive);
     doc.setFillColor(isComplete ? COLORS.olive[0] : COLORS.cream[0], isComplete ? COLORS.olive[1] : COLORS.cream[1], isComplete ? COLORS.olive[2] : COLORS.cream[2]);
@@ -212,7 +245,7 @@ function drawRepairActions(doc, peaceBond, completedActions, x, y, width) {
       doc.line(x + 6.8, cursorY - 0.8, x + 8.7, cursorY - 3.7);
     }
 
-    const status = isComplete ? "Complete" : "Pending";
+    const status = isComplete ? t("common.complete") : t("common.pending");
     const actionHeight = drawWrappedText(doc, `${index + 1}. ${status} - ${action}`, x + 14, cursorY, width - 22, {
       color: COLORS.soil,
       lineHeight: 4.4,
@@ -224,20 +257,24 @@ function drawRepairActions(doc, peaceBond, completedActions, x, y, width) {
   });
 }
 
-function drawTwoColumnSummary(doc, peaceBond, x, y, width) {
-  const grant = getGrant(peaceBond);
+function drawTwoColumnSummary(doc, peaceBond, x, y, width, language) {
+  const t = (key, params) => translateWithFallback(language, key, params);
+  const grant = getGrant(peaceBond, language);
   const gap = 8;
   const columnWidth = (width - gap) / 2;
   const boxHeight = 32;
 
   [
     {
-      body: peaceBond.ritual,
-      title: "RECONCILIATION RITUAL",
+      body: translateRitual(peaceBond, language),
+      title: t("certificate.reconciliationRitual"),
     },
     {
-      body: `${grant.currency} ${grant.amount} for ${grant.purpose}`,
-      title: "REINTEGRATION SUPPORT",
+      body: t("certificate.reintegrationSupportText", {
+        amount: `${grant.currency} ${grant.amount}`,
+        purpose: grant.purpose,
+      }),
+      title: t("certificate.reintegrationSupport"),
     },
   ].forEach((item, index) => {
     const columnX = x + index * (columnWidth + gap);
@@ -256,22 +293,23 @@ function drawTwoColumnSummary(doc, peaceBond, x, y, width) {
   });
 }
 
-function drawSignatureArea(doc, peaceBond, x, y, width) {
-  const completionDate = getCompletionDate(peaceBond);
+function drawSignatureArea(doc, peaceBond, x, y, width, language) {
+  const t = (key, params) => translateWithFallback(language, key, params);
+  const completionDate = getCompletionDate(peaceBond, language);
   const staffName = getStaffName();
   const gap = 8;
   const columnWidth = (width - gap * 2) / 3;
   const items = [
     {
-      label: "Staff Mediator",
+      label: t("certificate.staffMediator"),
       value: staffName === "staff" ? "" : staffName,
     },
     {
-      label: "PeaceBond Program",
-      value: "Restorative Reintegration",
+      label: t("certificate.program"),
+      value: t("certificate.programValue"),
     },
     {
-      label: "Completion Date",
+      label: t("certificate.authorizationDate"),
       value: completionDate,
     },
   ];
@@ -304,7 +342,8 @@ function drawSignatureArea(doc, peaceBond, x, y, width) {
   });
 }
 
-function addContinuationPage(doc, title) {
+function addContinuationPage(doc, title, language) {
+  const t = (key, params) => translateWithFallback(language, key, params);
   doc.addPage();
   drawPageFrame(doc);
   drawLeafMark(doc, 28, 31, 0.7);
@@ -317,12 +356,13 @@ function addContinuationPage(doc, title) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(...COLORS.stone);
-  doc.text("PeaceBond completion record", 42, 36);
+  doc.text(t("certificate.completionRecord"), 42, 36);
 
   return 52;
 }
 
-function drawDynamicTextSection(doc, section, y) {
+function drawDynamicTextSection(doc, section, y, language) {
+  const t = (key, params) => translateWithFallback(language, key, params);
   const x = LAYOUT.margin;
   const width = LAYOUT.width;
   const lineHeight = 4.8;
@@ -333,7 +373,7 @@ function drawDynamicTextSection(doc, section, y) {
 
   while (lines.length > 0) {
     if (y > LAYOUT.bottom - 26) {
-      y = addContinuationPage(doc, section.title);
+      y = addContinuationPage(doc, section.title, language);
       continued = true;
     }
 
@@ -349,7 +389,11 @@ function drawDynamicTextSection(doc, section, y) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8.2);
     doc.setTextColor(...COLORS.clay);
-    doc.text(`${section.title}${continued ? " CONTINUED" : ""}`.toUpperCase(), textX, y + 8);
+    doc.text(
+      `${section.title}${continued ? ` ${t("certificate.continued")}` : ""}`.toUpperCase(),
+      textX,
+      y + 8
+    );
 
     doc.setDrawColor(...COLORS.line);
     doc.line(textX, y + 11, x + width - 6, y + 11);
@@ -363,7 +407,7 @@ function drawDynamicTextSection(doc, section, y) {
     lines = lines.slice(visibleLines.length);
 
     if (lines.length > 0) {
-      y = addContinuationPage(doc, section.title);
+      y = addContinuationPage(doc, section.title, language);
       continued = true;
     }
   }
@@ -371,18 +415,24 @@ function drawDynamicTextSection(doc, section, y) {
   return y;
 }
 
-function drawCertificatePage(doc, peaceBond, completedActions, progress) {
+function drawCertificatePage(doc, peaceBond, completedActions, progress, language) {
+  const t = (key, params) => translateWithFallback(language, key, params);
+  const localizedPeaceBond = getLocalizedPeaceBond(peaceBond, language);
   const completedCount = completedActions.filter(Boolean).length;
-  const completionDate = getCompletionDate(peaceBond);
+  const completionDate = getCompletionDate(peaceBond, language);
+  const protectedCase = isProtectedIdentity(peaceBond);
+  const certificateSubject = getCertificateSubject(peaceBond, t);
 
   drawPageFrame(doc);
   drawLeafMark(doc, PAGE.width / 2, 29, 1.05);
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.setTextColor(...COLORS.soil);
-  doc.text("PEACEBOND COMPLETION CERTIFICATE", PAGE.width / 2, 51, {
+  drawWrappedText(doc, t("certificate.title").toUpperCase(), PAGE.width / 2, 48.5, 156, {
     align: "center",
+    color: COLORS.soil,
+    font: "bold",
+    lineHeight: 6.2,
+    maxLines: 2,
+    size: 16.2,
   });
 
   doc.setDrawColor(...COLORS.clay);
@@ -391,7 +441,7 @@ function drawCertificatePage(doc, peaceBond, completedActions, progress) {
 
   drawWrappedText(
     doc,
-    "This certificate recognizes the successful completion of a community-led restorative reintegration pathway through accountability, repair, and reconciliation.",
+    t("certificate.recognition"),
     PAGE.width / 2,
     67,
     146,
@@ -406,12 +456,17 @@ function drawCertificatePage(doc, peaceBond, completedActions, progress) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(...COLORS.stone);
-  doc.text("Presented with dignity to", PAGE.width / 2, 86, { align: "center" });
+  doc.text(
+    protectedCase ? t("identity.certifiedParticipant").toUpperCase() : t("certificate.presented"),
+    PAGE.width / 2,
+    86,
+    { align: "center" }
+  );
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(21);
   doc.setTextColor(...COLORS.soil);
-  doc.text(asText(peaceBond.fighterName, "Rehabilitatee"), PAGE.width / 2, 98, {
+  doc.text(asText(certificateSubject, t("certificate.rehabilitatee")), PAGE.width / 2, 98, {
     align: "center",
     maxWidth: 150,
   });
@@ -421,7 +476,15 @@ function drawCertificatePage(doc, peaceBond, completedActions, progress) {
 
   drawWrappedText(
     doc,
-    `NATIONALITY: ${asText(peaceBond.nationality)}`,
+    protectedCase
+      ? `${t("identity.confidentialPathway").toUpperCase()} - ${t("identity.participantId").toUpperCase()}: ${asText(
+          getParticipantId(peaceBond),
+          t("app.notRecorded")
+        )}`
+      : `${t("certificate.nationality").toUpperCase()}: ${asText(
+          peaceBond.nationality,
+          t("app.notRecorded")
+        )}`,
     PAGE.width / 2,
     111,
     140,
@@ -436,18 +499,47 @@ function drawCertificatePage(doc, peaceBond, completedActions, progress) {
   );
 
   const cellGap = 5;
-  const cellWidth = (LAYOUT.width - cellGap * 2) / 3;
-  drawInfoCell(doc, "Community Type", peaceBond.communityType || "General community", 18, 119, cellWidth);
-  drawInfoCell(doc, "Severity Level", formatLabel(peaceBond.severity), 18 + cellWidth + cellGap, 119, cellWidth);
-  drawInfoCell(doc, "Completion Date", completionDate, 18 + (cellWidth + cellGap) * 2, 119, cellWidth);
+  const cellWidth = (LAYOUT.width - cellGap * 3) / 4;
+  drawInfoCell(
+    doc,
+    t("certificate.communityType"),
+    localizedPeaceBond.communityTypeLabel || translateCommunityType(peaceBond.communityType, language),
+    18,
+    119,
+    cellWidth
+  );
+  drawInfoCell(
+    doc,
+    t("certificate.harmCategory"),
+    translateCategory(peaceBond.category, language),
+    18 + cellWidth + cellGap,
+    119,
+    cellWidth
+  );
+  drawInfoCell(
+    doc,
+    t("certificate.severityLevel"),
+    localizedPeaceBond.severityLabel || translateSeverity(peaceBond.severity, language),
+    18 + (cellWidth + cellGap) * 2,
+    119,
+    cellWidth
+  );
+  drawInfoCell(
+    doc,
+    t("certificate.authorizationDate"),
+    completionDate,
+    18 + (cellWidth + cellGap) * 3,
+    119,
+    cellWidth
+  );
 
-  drawRepairActions(doc, peaceBond, completedActions, 18, 151, LAYOUT.width);
-  drawTwoColumnSummary(doc, peaceBond, 18, 222, LAYOUT.width);
+  drawRepairActions(doc, peaceBond, completedActions, 18, 151, LAYOUT.width, language);
+  drawTwoColumnSummary(doc, peaceBond, 18, 222, LAYOUT.width, language);
 
-  drawSectionHeading(doc, "CERTIFIED COMPLETION", 18, 266, LAYOUT.width);
+  drawSectionHeading(doc, t("certificate.certifiedCompletion"), 18, 266, LAYOUT.width);
   drawWrappedText(
     doc,
-    `Completion recorded at ${progress}% with ${completedCount} of 3 restorative repair actions completed.`,
+    t("certificate.progress", { completedCount, progress }),
     18,
     276,
     LAYOUT.width,
@@ -460,47 +552,54 @@ function drawCertificatePage(doc, peaceBond, completedActions, progress) {
   );
 }
 
-function drawReviewPage(doc, peaceBond) {
-  const grant = getGrant(peaceBond);
-  let y = addContinuationPage(doc, "COMMUNITY ACKNOWLEDGMENT");
+function drawReviewPage(doc, peaceBond, language) {
+  const t = (key, params) => translateWithFallback(language, key, params);
+  const grant = getGrant(peaceBond, language);
+  let y = addContinuationPage(doc, t("certificate.communityAcknowledgment"), language);
 
   const sections = [
     {
       body: getReportValue(
         peaceBond,
         "summary",
-        "Staff recorded that the restorative repair pathway was completed and reviewed."
+        t("certificate.reviewFallback"),
+        language
       ),
-      title: "STAFF COMPLETION REVIEW SUMMARY",
+      title: t("certificate.reviewSummary"),
     },
     {
       body: getReportValue(
         peaceBond,
         "communityResponse",
-        "Community acknowledgment was recorded by staff review."
+        t("certificate.communityAcknowledgmentFallback"),
+        language
       ),
-      title: "COMMUNITY ACKNOWLEDGMENT",
+      title: t("certificate.communityAcknowledgment"),
     },
     {
-      body: `Grant amount: ${grant.currency} ${grant.amount}. Grant purpose: ${grant.purpose}.`,
-      title: "REINTEGRATION SUPPORT",
+      body: t("certificate.reintegrationSupportText", {
+        amount: `${grant.currency} ${grant.amount}`,
+        purpose: grant.purpose,
+      }),
+      title: t("certificate.reintegrationSupport"),
     },
     {
       body: getReportValue(
         peaceBond,
         "staffRecommendation",
-        "Based on the successful completion of the restorative repair pathway, community mediators and PeaceBond staff recommend continued reintegration support and community inclusion."
+        t("certificate.recommendationFallback"),
+        language
       ),
-      title: "STAFF RECOMMENDATION",
+      title: t("certificate.staffRecommendation"),
     },
   ];
 
   sections.forEach((section) => {
-    y = drawDynamicTextSection(doc, section, y);
+    y = drawDynamicTextSection(doc, section, y, language);
   });
 
   if (y > 225) {
-    y = addContinuationPage(doc, "CERTIFIED COMPLETION");
+    y = addContinuationPage(doc, t("certificate.certifiedCompletion"), language);
   }
 
   doc.setFillColor(...COLORS.olivePale);
@@ -508,11 +607,11 @@ function drawReviewPage(doc, peaceBond) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.2);
   doc.setTextColor(...COLORS.olive);
-  doc.text("CERTIFIED COMPLETION", 24, y + 8);
+  doc.text(t("certificate.certifiedCompletion").toUpperCase(), 24, y + 8);
 
   drawWrappedText(
     doc,
-    "This record affirms restoration, dignity, reconciliation, and successful reintegration through a completed PeaceBond pathway.",
+    t("certificate.footerStatement"),
     24,
     y + 16,
     LAYOUT.width - 12,
@@ -524,16 +623,20 @@ function drawReviewPage(doc, peaceBond) {
     }
   );
 
-  drawSignatureArea(doc, peaceBond, 18, 256, LAYOUT.width);
+  drawSignatureArea(doc, peaceBond, 18, 256, LAYOUT.width, language);
 }
 
 export function downloadCertificate({ completedActions, peaceBond, progress }) {
+  const language = getStoredLanguage();
   const doc = new jsPDF({
     format: "a4",
     unit: "mm",
   });
+  if (language === "ar" && typeof doc.setR2L === "function") {
+    doc.setR2L(true);
+  }
 
-  drawCertificatePage(doc, peaceBond, completedActions, progress);
-  drawReviewPage(doc, peaceBond);
+  drawCertificatePage(doc, peaceBond, completedActions, progress, language);
+  drawReviewPage(doc, peaceBond, language);
   doc.save("peacebond-completion-certificate.pdf");
 }

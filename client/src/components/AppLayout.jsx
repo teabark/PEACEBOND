@@ -1,112 +1,108 @@
 import { useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import LanguageSelector from "./LanguageSelector.jsx";
 import LeafLogo from "./LeafLogo.jsx";
+import { useI18n } from "./LanguageProvider.jsx";
 import { useToast } from "./ToastProvider.jsx";
 import { getStaffName, logoutStaff } from "../utils/auth.js";
 import { addNotification } from "../utils/notifications.js";
 
 const navItems = [
-  { label: "Dashboard", to: "/dashboard" },
-  { label: "Create PeaceBond", to: "/dashboard/create" },
-  { label: "Active Cases", to: "/dashboard/active" },
-  { label: "Notifications", to: "/dashboard/notifications" },
-  { label: "Activity History", to: "/dashboard/history" },
-  { label: "Completed Reintegration", to: "/dashboard/completed" },
+  { labelKey: "nav.dashboard", to: "/dashboard" },
+  { labelKey: "nav.create", to: "/dashboard/create" },
+  { labelKey: "nav.active", to: "/dashboard/active" },
+  { labelKey: "nav.notifications", to: "/dashboard/notifications" },
+  { labelKey: "nav.history", to: "/dashboard/history" },
+  { labelKey: "nav.completed", to: "/dashboard/completed" },
 ];
 
 const pageContexts = [
   {
     match: (pathname) => pathname === "/dashboard",
-    status: "Restorative pathways in progress",
-    story: "Community repair strengthens lasting peace.",
-    subtitle: "Guided by dignity, repair, and reconciliation.",
-    title: "🕊 Peace Operations Dashboard",
+    statusKey: "layout.dashboardStatus",
+    storyKey: "layout.dashboardStory",
+    subtitleKey: "layout.dashboardSubtitle",
+    titleKey: "layout.dashboardTitle",
   },
   {
     match: (pathname) => pathname === "/dashboard/create",
-    status: "New repair pathway",
-    story: "Reintegration begins through accountability and dignity.",
-    subtitle: "Prepare a community-led pathway with care.",
-    title: "Create PeaceBond",
+    statusKey: "layout.createStatus",
+    storyKey: "layout.createStory",
+    subtitleKey: "layout.createSubtitle",
+    titleKey: "layout.createTitle",
   },
   {
     match: (pathname) => pathname === "/dashboard/active",
-    status: "Active case work",
-    story: "Every completed repair action makes return more possible.",
-    subtitle: "Track repair journeys that need mediator attention.",
-    title: "Active Cases",
+    statusKey: "layout.repairStatus",
+    storyKey: "layout.repairStory",
+    subtitleKey: "layout.repairSubtitle",
+    titleKey: "layout.repairTitle",
   },
   {
     match: (pathname) => pathname.includes("/dashboard/peacebonds/"),
-    status: "Repair workspace",
-    story: "Small acts of repair can rebuild shared trust.",
-    subtitle: "Support completion with dignity and clarity.",
-    title: "Repair Workspace",
+    statusKey: "layout.repairStatus",
+    storyKey: "layout.repairStory",
+    subtitleKey: "layout.repairSubtitle",
+    titleKey: "layout.repairTitle",
   },
   {
     match: (pathname) => pathname === "/dashboard/notifications",
-    status: "Program updates",
-    story: "Clear records help communities see progress.",
-    subtitle: "Follow completion, grant, and mediation updates.",
-    title: "Notifications",
+    statusKey: "layout.notificationsStatus",
+    storyKey: "layout.notificationsStory",
+    subtitleKey: "layout.notificationsSubtitle",
+    titleKey: "layout.notificationsTitle",
   },
   {
     match: (pathname) => pathname === "/dashboard/history",
-    status: "Case memory",
-    story: "A shared record protects the story of repair.",
-    subtitle: "Review PeaceBond activity across this mediation session.",
-    title: "Activity History",
+    statusKey: "layout.historyStatus",
+    storyKey: "layout.historyStory",
+    subtitleKey: "layout.historySubtitle",
+    titleKey: "layout.historyTitle",
   },
   {
     match: (pathname) => pathname === "/dashboard/completed",
-    status: "Completed reintegration",
-    story: "Successful return is recognized through repair and welcome.",
-    subtitle: "Celebrate completed pathways and community acknowledgment.",
-    title: "Completed Reintegration",
+    statusKey: "layout.completedStatus",
+    storyKey: "layout.completedStory",
+    subtitleKey: "layout.completedSubtitle",
+    titleKey: "layout.completedTitle",
   },
 ];
 
 function getPageContext(pathname) {
   return (
     pageContexts.find((context) => context.match(pathname)) || {
-      status: "PeaceBond workspace",
-      story: "Restorative pathways in progress.",
-      subtitle: "Guided by dignity, repair, and community return.",
-      title: "PeaceBond Workspace",
+      statusKey: "layout.workspaceStatus",
+      storyKey: "layout.workspaceStory",
+      subtitleKey: "layout.workspaceSubtitle",
+      titleKey: "layout.workspaceTitle",
     }
   );
 }
 
-function getGreeting() {
+function getGreetingKey() {
   const hour = new Date().getHours();
 
   if (hour < 12) {
-    return "Good morning";
+    return "layout.goodMorning";
   }
 
   if (hour < 18) {
-    return "Good afternoon";
+    return "layout.goodAfternoon";
   }
 
-  return "Good evening";
-}
-
-function getHeaderDate() {
-  return new Date().toLocaleDateString(undefined, {
-    day: "numeric",
-    month: "short",
-    weekday: "long",
-  });
+  return "layout.goodEvening";
 }
 
 function BrandTitle() {
+  const { t } = useI18n();
+
   return (
     <div className="flex items-center gap-3">
       <LeafLogo />
       <div>
         <p className="text-base font-semibold leading-none text-white">PeaceBond</p>
         <p className="mt-1 hidden text-xs text-earth-sand/75 sm:block">
-          A Dignified Path Home
+          {t("layout.tagline")}
         </p>
       </div>
     </div>
@@ -116,6 +112,7 @@ function BrandTitle() {
 function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { formatDate, t } = useI18n();
   const { showToast } = useToast();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pageContext = getPageContext(location.pathname);
@@ -123,13 +120,13 @@ function AppLayout() {
 
   function handleLogout() {
     addNotification({
-      title: "Staff logout",
-      message: `${staffName} ended the current mediation session.`,
+      title: t("toast.signedOut"),
+      message: t("toast.signedOutMessage", { name: staffName }),
       type: "logout",
     });
     showToast({
-      title: "Signed out",
-      message: `${staffName} ended the current mediation session.`,
+      title: t("toast.signedOut"),
+      message: t("toast.signedOutMessage", { name: staffName }),
       type: "info",
     });
     logoutStaff();
@@ -140,7 +137,7 @@ function AppLayout() {
     <div className="min-h-screen bg-[#f5ecdf] text-earth-soil lg:grid lg:grid-cols-[286px_minmax(0,1fr)]">
       {isSidebarOpen && (
         <button
-          aria-label="Close navigation"
+          aria-label={t("app.close")}
           className="fixed inset-0 z-40 bg-earth-soil/35 backdrop-blur-[1px] lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
           type="button"
@@ -148,30 +145,30 @@ function AppLayout() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-80 max-w-[86vw] flex-col border-r border-earth-clay/30 bg-earth-soil p-5 text-earth-sand shadow-2xl shadow-earth-soil/30 transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:h-screen lg:w-auto lg:max-w-none lg:translate-x-0 lg:shadow-none ${
+        className={`fixed inset-y-0 left-0 z-50 flex min-h-0 w-80 max-w-[86vw] flex-col overflow-hidden border-r border-earth-clay/30 bg-earth-soil p-5 text-earth-sand shadow-2xl shadow-earth-soil/30 transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:h-screen lg:w-auto lg:max-w-none lg:translate-x-0 lg:shadow-none ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-start justify-between gap-4">
+        <div className="shrink-0 flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-earth-sand/60">
-              Peace Operations
+              {t("layout.operations")}
             </p>
             <div className="mt-3">
               <BrandTitle />
             </div>
           </div>
           <button
-            aria-label="Close menu"
+            aria-label={t("app.close")}
             className="rounded-lg border border-earth-sand/20 px-3 py-2 text-sm font-semibold text-earth-sand transition hover:border-earth-sand/50 hover:bg-white/10 lg:hidden"
             onClick={() => setIsSidebarOpen(false)}
             type="button"
           >
-            Close
+            {t("app.close")}
           </button>
         </div>
 
-        <nav className="mt-8 flex flex-1 flex-col gap-2.5">
+        <nav className="mt-8 flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto pr-1">
           {navItems.map((item) => (
             <NavLink
               className={({ isActive }) =>
@@ -187,17 +184,18 @@ function AppLayout() {
               to={item.to}
             >
               <span className="h-2 w-2 rounded-full bg-earth-olive transition group-hover:bg-earth-clay" />
-              {item.label}
+              {t(item.labelKey)}
             </NavLink>
           ))}
         </nav>
 
-        <div className="mt-6 border-t border-earth-sand/15 pt-5">
-          <div className="rounded-lg bg-white/10 px-4 py-4 text-sm leading-6 text-earth-sand/85">
-            <p className="font-semibold text-white">🌿 Peace Mediator</p>
+        <div className="mt-5 shrink-0 border-t border-earth-sand/15 pt-4">
+          <LanguageSelector compact tone="dark" />
+          <div className="mt-3 rounded-lg bg-white/10 px-4 py-4 text-sm leading-6 text-earth-sand/85">
+            <p className="font-semibold text-white">{t("layout.peaceMediator")}</p>
             <p className="mt-1">{staffName}</p>
             <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-earth-sand/55">
-              🕊 Staff Member
+              {t("layout.staffMember")}
             </p>
           </div>
           <button
@@ -205,7 +203,7 @@ function AppLayout() {
             onClick={handleLogout}
             type="button"
           >
-            Logout
+            {t("app.logout")}
           </button>
         </div>
       </aside>
@@ -218,35 +216,39 @@ function AppLayout() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-3 lg:hidden">
                     <button
-                      aria-label="Open navigation"
+                      aria-label={t("app.openNavigation")}
                       className="rounded-lg border border-earth-soil/20 bg-white px-4 py-2 text-sm font-semibold text-earth-soil shadow-sm transition hover:border-earth-clay hover:text-earth-clay"
                       onClick={() => setIsSidebarOpen(true)}
                       type="button"
                     >
-                      Menu
+                      {t("app.menu")}
                     </button>
                     <p className="text-sm font-semibold text-earth-soil">PeaceBond</p>
                   </div>
                   <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-earth-clay lg:mt-0">
-                    {pageContext.status}
+                    {t(pageContext.statusKey)}
                   </p>
                   <h1 className="mt-2 text-2xl font-semibold leading-tight text-earth-soil sm:text-3xl">
-                    {pageContext.title}
+                    {t(pageContext.titleKey)}
                   </h1>
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-600">
-                    {pageContext.subtitle}
+                    {t(pageContext.subtitleKey)}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:justify-end">
                   <div className="rounded-lg bg-earth-sand px-4 py-3 text-sm leading-6 text-earth-soil">
                     <p className="font-semibold">
-                      {getGreeting()}, {staffName} 🌿
+                      {t(getGreetingKey())}, {staffName}
                     </p>
-                    <p className="text-stone-600">{pageContext.story}</p>
+                    <p className="text-stone-600">{t(pageContext.storyKey)}</p>
                   </div>
                   <div className="w-fit rounded-full border border-earth-olive/25 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-earth-olive">
-                    {getHeaderDate()}
+                    {formatDate(new Date(), {
+                      day: "numeric",
+                      month: "short",
+                      weekday: "long",
+                    })}
                   </div>
                 </div>
               </div>

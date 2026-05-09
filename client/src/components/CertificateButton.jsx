@@ -1,19 +1,30 @@
 import { useState } from "react";
+import { useI18n } from "./LanguageProvider.jsx";
 import MockWhatsAppNotice from "./MockWhatsAppNotice.jsx";
 import { useToast } from "./ToastProvider.jsx";
 import { downloadCertificate } from "../utils/certificate.js";
+import {
+  getSharedDisplayName,
+  getSharedPhoneNumber,
+  isProtectedIdentity,
+} from "../utils/protectedIdentity.js";
 
 function formatGrant(grant) {
   return `${grant.currency} ${grant.amount}`;
 }
 
-function buildCompletionSms(peaceBond) {
-  return `PeaceBond completed. You have fulfilled your rehabilitation agreement and received a reintegration grant of ${formatGrant(
-    peaceBond.grant
-  )}. Your completion certificate is now available.`;
+function buildCompletionSms(peaceBond, t) {
+  if (isProtectedIdentity(peaceBond)) {
+    return t("identity.protectedCertificateMessage");
+  }
+
+  return t("message.completionSms", {
+    amount: formatGrant(peaceBond.grant),
+  });
 }
 
 function CertificateButton({ completedActions, peaceBond, progress }) {
+  const { t } = useI18n();
   const { showToast } = useToast();
   const [sentSms, setSentSms] = useState(null);
   const [sentWhatsApp, setSentWhatsApp] = useState(null);
@@ -27,16 +38,20 @@ function CertificateButton({ completedActions, peaceBond, progress }) {
 
   function handleDownload() {
     downloadCertificate({ completedActions, peaceBond, progress });
+    const sharedName = getSharedDisplayName(peaceBond, t);
+    const sharedPhoneNumber = getSharedPhoneNumber(peaceBond, t("whatsapp.noPhone"));
+    const completionMessage = buildCompletionSms(peaceBond, t);
+
     showToast({
-      title: "Certificate downloaded",
-      message: `${peaceBond.fighterName}'s completion certificate was prepared for the community record.`,
+      title: t("toast.certificateDownloaded"),
+      message: t("toast.certificateDownloadedMessage", { name: sharedName }),
       type: "success",
     });
 
     if (!canSendCompletionSms) {
       showToast({
-        title: "Certificate not ready",
-        message: "Submit the completion report before releasing grant or certificate.",
+        title: t("toast.certificateNotReady"),
+        message: t("report.lockedMessage"),
         type: "warning",
       });
       return;
@@ -44,24 +59,24 @@ function CertificateButton({ completedActions, peaceBond, progress }) {
 
     setSentSms({
       grantAmount: formatGrant(peaceBond.grant),
-      message: buildCompletionSms(peaceBond),
-      name: peaceBond.fighterName,
-      phoneNumber: peaceBond.phoneNumber || "No phone number recorded",
+      message: completionMessage,
+      name: sharedName,
+      phoneNumber: sharedPhoneNumber,
     });
     setSentWhatsApp({
-      message: buildCompletionSms(peaceBond),
-      name: peaceBond.fighterName,
-      phoneNumber: peaceBond.phoneNumber,
+      message: completionMessage,
+      name: sharedName,
+      phoneNumber: sharedPhoneNumber,
       sentAt: new Date().toISOString(),
     });
     showToast({
-      title: "Mock SMS Sent",
-      message: "Completion SMS sent to rehabilitatee.",
+      title: t("toast.mockSms"),
+      message: t("toast.mockSmsMessage"),
       type: "success",
     });
     showToast({
-      title: "Mock WhatsApp Sent",
-      message: "WhatsApp completion message sent.",
+      title: t("toast.mockWhatsApp"),
+      message: t("toast.mockWhatsAppCompletion"),
       type: "success",
     });
   }
@@ -69,41 +84,41 @@ function CertificateButton({ completedActions, peaceBond, progress }) {
   return (
     <section className="rounded-lg border border-stone-200 bg-white/90 p-5 shadow-sm sm:p-6">
       <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">
-        Completion certificate
+        {t("certificate.title")}
       </p>
       <p className="mt-2 text-base leading-7 text-stone-700">
-        The PeaceBond is complete. Download a certificate for the community record.
+        {t("certificate.footerStatement")}
       </p>
       <button
         className="mt-4 rounded-lg bg-earth-clay px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#9f6141]"
         onClick={handleDownload}
         type="button"
       >
-        Download certificate
+        {t("certificate.download")}
       </button>
 
       {sentSms && (
         <div className="mt-5 rounded-lg border border-earth-olive/30 bg-earth-sand/70 p-4">
           <p className="text-sm font-semibold uppercase tracking-wide text-earth-olive">
-            Mock SMS Sent
+            {t("toast.mockSms")}
           </p>
           <div className="mt-3 grid gap-2 text-sm text-stone-700 sm:grid-cols-2">
             <p>
-              <span className="font-semibold text-earth-soil">Rehabilitatee:</span>{" "}
+              <span className="font-semibold text-earth-soil">{t("card.rehabilitatee")}:</span>{" "}
               {sentSms.name}
             </p>
             <p>
-              <span className="font-semibold text-earth-soil">Phone:</span>{" "}
+              <span className="font-semibold text-earth-soil">{t("card.phone")}:</span>{" "}
               {sentSms.phoneNumber}
             </p>
             <p>
-              <span className="font-semibold text-earth-soil">Grant:</span>{" "}
+              <span className="font-semibold text-earth-soil">{t("card.grant")}:</span>{" "}
               {sentSms.grantAmount}
             </p>
           </div>
           <div className="mt-4 rounded-lg border border-white/80 bg-white/70 p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-earth-clay">
-              Message preview
+              {t("whatsapp.messagePreview")}
             </p>
             <p className="mt-2 text-sm leading-6 text-earth-soil">{sentSms.message}</p>
           </div>
