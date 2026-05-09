@@ -1,7 +1,14 @@
 import { useState } from "react";
+import GuidedDraftingAssistant from "./GuidedDraftingAssistant.jsx";
 import { useToast } from "./ToastProvider.jsx";
 
-function StaffCompletionReport({ isSubmitting, onSubmit }) {
+function StaffCompletionReport({
+  completedActions,
+  isSubmitting,
+  onSubmit,
+  peaceBond,
+  progress,
+}) {
   const { showToast } = useToast();
   const [reportSummary, setReportSummary] = useState("");
   const [communityResponse, setCommunityResponse] = useState("");
@@ -23,6 +30,12 @@ function StaffCompletionReport({ isSubmitting, onSubmit }) {
       type: "warning",
     });
   }
+
+  const draftingContext = {
+    completedActions,
+    peaceBond,
+    progress,
+  };
 
   return (
     <section className="rounded-lg border border-earth-clay/20 bg-white/90 p-5 shadow-sm sm:p-6">
@@ -47,6 +60,13 @@ function StaffCompletionReport({ isSubmitting, onSubmit }) {
             placeholder="Summarize the repair work completed..."
             value={reportSummary}
           />
+          <GuidedDraftingAssistant
+            context={draftingContext}
+            currentValue={reportSummary}
+            fieldType="completionReview"
+            helperText="Need help drafting the completion review?"
+            onUseDraft={setReportSummary}
+          />
         </div>
 
         <div>
@@ -60,6 +80,13 @@ function StaffCompletionReport({ isSubmitting, onSubmit }) {
             placeholder="How did the community respond?"
             value={communityResponse}
           />
+          <GuidedDraftingAssistant
+            context={draftingContext}
+            currentValue={communityResponse}
+            fieldType="communityAcknowledgment"
+            helperText="Need help drafting the community acknowledgment?"
+            onUseDraft={setCommunityResponse}
+          />
         </div>
 
         <div>
@@ -72,6 +99,13 @@ function StaffCompletionReport({ isSubmitting, onSubmit }) {
             onChange={(event) => setStaffRecommendation(event.target.value)}
             placeholder="Recommend grant release and certificate issuance?"
             value={staffRecommendation}
+          />
+          <GuidedDraftingAssistant
+            context={draftingContext}
+            currentValue={staffRecommendation}
+            fieldType="staffRecommendation"
+            helperText="Need help drafting the staff recommendation?"
+            onUseDraft={setStaffRecommendation}
           />
         </div>
 

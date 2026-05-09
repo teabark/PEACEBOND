@@ -1,4 +1,5 @@
 import { useState } from "react";
+import GuidedDraftingAssistant from "./GuidedDraftingAssistant.jsx";
 
 function HarmForm({ error, isGenerating, onGenerate }) {
   const [fighterName, setFighterName] = useState("");
@@ -132,6 +133,19 @@ function HarmForm({ error, isGenerating, onGenerate }) {
             onChange={(event) => setHarmDescription(event.target.value)}
             placeholder="Example: A fight at the market left one family afraid to return."
             value={harmDescription}
+          />
+          <GuidedDraftingAssistant
+            context={{
+              communityType,
+              fighterName,
+              nationality,
+              severity,
+              skills,
+            }}
+            currentValue={harmDescription}
+            fieldType="harmDescription"
+            helperText="Need help wording the harm description?"
+            onUseDraft={setHarmDescription}
           />
         </div>
 

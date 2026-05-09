@@ -252,8 +252,11 @@ function PeaceBondDetail() {
 
       {progress === 100 && !peaceBond.reportSubmitted && (
         <StaffCompletionReport
+          completedActions={completedActions}
           isSubmitting={isSubmittingReport}
           onSubmit={handleSubmitCompletionReport}
+          peaceBond={peaceBond}
+          progress={progress}
         />
       )}
 
