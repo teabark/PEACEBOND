@@ -1,9 +1,37 @@
 export function isProtectedIdentity(peaceBond) {
-  return Boolean(peaceBond?.protectedIdentity);
+  const protectedValue = peaceBond?.protectedIdentity;
+  const rawParticipantId =
+    typeof peaceBond?.participantId === "string" ? peaceBond.participantId.trim() : "";
+
+  return (
+    protectedValue === true ||
+    protectedValue === "true" ||
+    protectedValue === 1 ||
+    protectedValue === "1" ||
+    protectedValue === "on" ||
+    rawParticipantId.length > 0
+  );
 }
 
 export function getParticipantId(peaceBond) {
-  return typeof peaceBond?.participantId === "string" ? peaceBond.participantId.trim() : "";
+  const storedParticipantId =
+    typeof peaceBond?.participantId === "string" ? peaceBond.participantId.trim() : "";
+
+  if (storedParticipantId) {
+    return storedParticipantId;
+  }
+
+  if (!isProtectedIdentity(peaceBond)) {
+    return "";
+  }
+
+  const sourceId = String(peaceBond?._id || peaceBond?.id || "").trim();
+
+  if (!sourceId) {
+    return "PB-PROTECTED";
+  }
+
+  return `PB-${sourceId.slice(-6).toUpperCase()}`;
 }
 
 export function getParticipantReference(peaceBond, t) {
@@ -22,7 +50,7 @@ export function getSharedDisplayName(peaceBond, t) {
 
 export function getCertificateSubject(peaceBond, t) {
   if (isProtectedIdentity(peaceBond)) {
-    return getParticipantId(peaceBond) || getParticipantReference(peaceBond, t);
+    return getParticipantReference(peaceBond, t);
   }
 
   return peaceBond?.fighterName || (typeof t === "function" ? t("certificate.rehabilitatee") : "Rehabilitatee");
@@ -38,7 +66,7 @@ export function maskPhoneNumber(phoneNumber) {
   const totalDigits = [...value].filter((character) => /\d/.test(character)).length;
 
   if (totalDigits <= 6) {
-    return value.replace(/\d/g, "•");
+    return value.replace(/\d/g, "*");
   }
 
   let digitIndex = 0;
@@ -49,7 +77,7 @@ export function maskPhoneNumber(phoneNumber) {
       }
 
       digitIndex += 1;
-      return digitIndex <= 4 || digitIndex > totalDigits - 3 ? character : "•";
+      return digitIndex <= 4 || digitIndex > totalDigits - 3 ? character : "*";
     })
     .join("");
 }

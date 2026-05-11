@@ -236,6 +236,428 @@ const severityText = {
   ar: { high: "عالية", low: "منخفضة", moderate: "متوسطة" },
 };
 
+const adaptiveCategoryContent = {
+  en: {
+    resource_theft: {
+      title: "Resource Theft Repair Pathway",
+      label: "resource theft",
+      focus: "restitution, shared resource access, and mediated accountability",
+      ritual: "A resource repair meeting where affected households confirm restitution and renewed access commitments.",
+    },
+    livelihood_disruption: {
+      title: "Livelihood Restoration Pathway",
+      label: "livelihood disruption",
+      focus: "restoring tools, work access, and community trust around daily livelihood",
+      ritual: "A livelihood restoration circle where work access, repair tasks, and support are acknowledged.",
+    },
+    displacement_impact: {
+      title: "Displacement-Aware Repair Pathway",
+      label: "community displacement impact",
+      focus: "safe return, shared shelter or service access, and careful community mediation",
+      ritual: "A careful welcome meeting where repair commitments are witnessed without exposing vulnerable households.",
+    },
+  },
+  sw: {
+    resource_theft: {
+      title: "Njia ya Marekebisho ya Wizi wa Rasilimali",
+      label: "wizi wa rasilimali",
+      focus: "fidia, upatikanaji wa rasilimali za pamoja, na uwajibikaji kupitia upatanisho",
+      ritual: "Mkutano wa kurekebisha rasilimali ambapo kaya zilizoathiriwa zinathibitisha fidia na ahadi za upatikanaji.",
+    },
+    livelihood_disruption: {
+      title: "Njia ya Kurejesha Riziki",
+      label: "kuvurugika kwa riziki",
+      focus: "kurejesha zana, upatikanaji wa kazi, na uaminifu wa jamii kuhusu riziki ya kila siku",
+      ritual: "Duara la kurejesha riziki ambapo upatikanaji wa kazi, matendo ya marekebisho, na msaada hutambuliwa.",
+    },
+    displacement_impact: {
+      title: "Njia ya Marekebisho kwa Mazingira ya Uhamisho",
+      label: "athari ya uhamisho wa jamii",
+      focus: "kurudi salama, upatikanaji wa makazi au huduma za pamoja, na upatanisho makini",
+      ritual: "Mkutano wa makaribisho wa uangalifu ambapo ahadi za marekebisho hushuhudiwa bila kufichua kaya zilizo hatarini.",
+    },
+  },
+  fr: {
+    resource_theft: {
+      title: "Parcours de Reparation pour Vol de Ressources",
+      label: "vol de ressources",
+      focus: "restitution, acces aux ressources partagees et responsabilite mediee",
+      ritual: "Une rencontre de reparation des ressources ou les foyers affectes confirment la restitution et les engagements d'acces.",
+    },
+    livelihood_disruption: {
+      title: "Parcours de Restauration des Moyens de Subsistance",
+      label: "perturbation des moyens de subsistance",
+      focus: "restaurer les outils, l'acces au travail et la confiance communautaire autour du quotidien",
+      ritual: "Un cercle de restauration des moyens de subsistance ou l'acces au travail, les reparations et le soutien sont reconnus.",
+    },
+    displacement_impact: {
+      title: "Parcours de Reparation Sensible au Deplacement",
+      label: "impact du deplacement communautaire",
+      focus: "retour sur, acces partage aux abris ou services, et mediation communautaire prudente",
+      ritual: "Une rencontre d'accueil prudente ou les engagements de reparation sont attestes sans exposer les foyers vulnerables.",
+    },
+  },
+  pt: {
+    resource_theft: {
+      title: "Caminho de Reparacao por Roubo de Recursos",
+      label: "roubo de recursos",
+      focus: "restituicao, acesso a recursos partilhados e responsabilidade mediada",
+      ritual: "Uma reuniao de reparacao de recursos onde familias afetadas confirmam restituicao e compromissos de acesso.",
+    },
+    livelihood_disruption: {
+      title: "Caminho de Restauracao de Meios de Vida",
+      label: "interrupcao dos meios de vida",
+      focus: "restaurar ferramentas, acesso ao trabalho e confianca comunitaria no sustento diario",
+      ritual: "Um circulo de restauracao dos meios de vida onde acesso ao trabalho, reparos e apoio sao reconhecidos.",
+    },
+    displacement_impact: {
+      title: "Caminho de Reparacao Sensivel ao Deslocamento",
+      label: "impacto de deslocamento comunitario",
+      focus: "retorno seguro, acesso partilhado a abrigo ou servicos, e mediacao comunitaria cuidadosa",
+      ritual: "Uma reuniao de acolhimento cuidadosa onde compromissos de reparacao sao testemunhados sem expor familias vulneraveis.",
+    },
+  },
+  ar: {
+    resource_theft: {
+      title: "مسار إصلاح سرقة الموارد",
+      label: "سرقة الموارد",
+      focus: "رد الحق، الوصول إلى الموارد المشتركة، والمساءلة بوساطة",
+      ritual: "لقاء إصلاح للموارد تؤكد فيه الأسر المتضررة رد الحق وتجديد التزامات الوصول.",
+    },
+    livelihood_disruption: {
+      title: "مسار استعادة سبل العيش",
+      label: "تعطيل سبل العيش",
+      focus: "استعادة الأدوات، والوصول إلى العمل، وثقة المجتمع حول سبل العيش اليومية",
+      ritual: "دائرة لاستعادة سبل العيش يتم فيها الاعتراف بالوصول إلى العمل وأفعال الإصلاح والدعم.",
+    },
+    displacement_impact: {
+      title: "مسار إصلاح مراعي للنزوح",
+      label: "أثر النزوح المجتمعي",
+      focus: "عودة آمنة، ووصول مشترك إلى المأوى أو الخدمات، ووساطة مجتمعية حذرة",
+      ritual: "لقاء ترحيب حذر تُشهد فيه التزامات الإصلاح دون كشف الأسر الضعيفة.",
+    },
+  },
+};
+
+Object.entries(adaptiveCategoryContent).forEach(([language, content]) => {
+  categoryContent[language] = {
+    ...categoryContent[language],
+    ...content,
+  };
+});
+
+const communityContexts = {
+  "Rural Community": {
+    ar: "مجتمع ريفي",
+    en: "Rural Community",
+    fr: "Communaute rurale",
+    pt: "Comunidade rural",
+    sw: "Jamii ya vijijini",
+  },
+  "Urban Community": {
+    ar: "مجتمع حضري",
+    en: "Urban Community",
+    fr: "Communaute urbaine",
+    pt: "Comunidade urbana",
+    sw: "Jamii ya mjini",
+  },
+  "Border Community": {
+    ar: "مجتمع حدودي",
+    en: "Border Community",
+    fr: "Communaute frontaliere",
+    pt: "Comunidade fronteirica",
+    sw: "Jamii ya mpakani",
+  },
+  "Fishing Community": {
+    ar: "مجتمع صيد",
+    en: "Fishing Community",
+    fr: "Communaute de peche",
+    pt: "Comunidade pesqueira",
+    sw: "Jamii ya uvuvi",
+  },
+  "Farming Community": {
+    ar: "مجتمع زراعي",
+    en: "Farming Community",
+    fr: "Communaute agricole",
+    pt: "Comunidade agricola",
+    sw: "Jamii ya kilimo",
+  },
+  "Livestock Community": {
+    ar: "مجتمع رعي",
+    en: "Livestock Community",
+    fr: "Communaute pastorale",
+    pt: "Comunidade pecuaria",
+    sw: "Jamii ya mifugo",
+  },
+  "Refugee Settlement": {
+    ar: "مستوطنة لاجئين",
+    displacement: true,
+    en: "Refugee Settlement",
+    fr: "Site de refugies",
+    pt: "Assentamento de refugiados",
+    sw: "Makazi ya wakimbizi",
+  },
+  "Temporary Camp": {
+    ar: "مخيم مؤقت",
+    displacement: true,
+    en: "Temporary Camp",
+    fr: "Camp temporaire",
+    pt: "Acampamento temporario",
+    sw: "Kambi ya muda",
+  },
+  "Relocation Area": {
+    ar: "منطقة إعادة توطين",
+    displacement: true,
+    en: "Relocation Area",
+    fr: "Zone de relocalisation",
+    pt: "Area de relocacao",
+    sw: "Eneo la kuhamishiwa",
+  },
+  "Displacement Settlement": {
+    ar: "تجمع نزوح",
+    displacement: true,
+    en: "Displacement Settlement",
+    fr: "Site de deplacement",
+    pt: "Assentamento de deslocamento",
+    sw: "Makazi ya waliohamishwa",
+  },
+  "Coastal Community": {
+    ar: "مجتمع ساحلي",
+    en: "Coastal Community",
+    fr: "Communaute cotiere",
+    pt: "Comunidade costeira",
+    sw: "Jamii ya pwani",
+  },
+  "Market Community": {
+    ar: "مجتمع سوق",
+    en: "Market Community",
+    fr: "Communaute de marche",
+    pt: "Comunidade de mercado",
+    sw: "Jamii ya soko",
+  },
+  "General community": {
+    ar: "مجتمع عام",
+    en: "General community",
+    fr: "Communaute generale",
+    pt: "Comunidade geral",
+    sw: "Jamii ya jumla",
+  },
+};
+
+const communityAliases = {
+  "Border community": "Border Community",
+  "Coastal fishing community": "Fishing Community",
+  "Displacement settlement": "Displacement Settlement",
+  "Market town": "Market Community",
+  "Pastoral community": "Livestock Community",
+  "Refugee settlement": "Refugee Settlement",
+  "Relocation area": "Relocation Area",
+  "Rural community": "Rural Community",
+  "Rural village": "Rural Community",
+  "Temporary camp": "Temporary Camp",
+  "Urban community": "Urban Community",
+  "Urban settlement": "Urban Community",
+};
+
+const livelihoodContexts = {
+  Fishing: {
+    ar: "الصيد",
+    en: "Fishing",
+    fr: "Peche",
+    grant: {
+      ar: "دعم إعادة الإدماج لمستلزمات إصلاح معدات الصيد والوصول الآمن إلى العمل.",
+      en: "Reintegration support for fishing equipment repair supplies and safe access to work.",
+      fr: "Soutien a la reintegration pour les fournitures de reparation du materiel de peche et l'acces sur au travail.",
+      pt: "Apoio de reintegracao para reparo de equipamentos de pesca e acesso seguro ao trabalho.",
+      sw: "Msaada wa urejeshwaji kwa vifaa vya kurekebisha zana za uvuvi na kufikia kazi kwa usalama.",
+    },
+    pt: "Pesca",
+    sw: "Uvuvi",
+  },
+  Farming: {
+    ar: "الزراعة",
+    en: "Farming",
+    fr: "Agriculture",
+    grant: {
+      ar: "دعم إعادة الإدماج للبذور والأدوات الزراعية الأساسية.",
+      en: "Reintegration support for seeds and basic farming tools.",
+      fr: "Soutien a la reintegration pour des semences et des outils agricoles de base.",
+      pt: "Apoio de reintegracao para sementes e ferramentas agricolas basicas.",
+      sw: "Msaada wa urejeshwaji kwa mbegu na zana za msingi za kilimo.",
+    },
+    pt: "Agricultura",
+    sw: "Kilimo",
+  },
+  Livestock: {
+    ar: "الثروة الحيوانية",
+    en: "Livestock",
+    fr: "Elevage",
+    grant: {
+      ar: "دعم إعادة الإدماج لمواد رد الحق واستقرار سبل العيش الرعوية.",
+      en: "Reintegration support for restitution materials and livestock livelihood stability.",
+      fr: "Soutien a la reintegration pour les materiaux de restitution et la stabilite de l'elevage.",
+      pt: "Apoio de reintegracao para materiais de restituicao e estabilidade pecuaria.",
+      sw: "Msaada wa urejeshwaji kwa vifaa vya fidia na uthabiti wa riziki ya mifugo.",
+    },
+    pt: "Pecuaria",
+    sw: "Mifugo",
+  },
+  "Small Trade": {
+    ar: "تجارة صغيرة",
+    en: "Small Trade",
+    fr: "Petit commerce",
+    grant: {
+      ar: "دعم إعادة الإدماج لمخزون صغير أو سلع بداية آمنة.",
+      en: "Reintegration support for small stock or safe starter goods.",
+      fr: "Soutien a la reintegration pour un petit stock ou des biens de demarrage surs.",
+      pt: "Apoio de reintegracao para pequeno estoque ou bens iniciais seguros.",
+      sw: "Msaada wa urejeshwaji kwa bidhaa ndogo au mtaji salama wa kuanzia.",
+    },
+    pt: "Pequeno comercio",
+    sw: "Biashara ndogo",
+  },
+  Carpentry: {
+    ar: "النجارة",
+    en: "Carpentry",
+    fr: "Menuiserie",
+    grant: {
+      ar: "دعم إعادة الإدماج لأدوات يدوية ومواد خشبية.",
+      en: "Reintegration support for hand tools and wood materials.",
+      fr: "Soutien a la reintegration pour des outils manuels et du bois.",
+      pt: "Apoio de reintegracao para ferramentas manuais e materiais de madeira.",
+      sw: "Msaada wa urejeshwaji kwa zana za mikono na vifaa vya mbao.",
+    },
+    pt: "Carpintaria",
+    sw: "Useremala",
+  },
+  Tailoring: {
+    ar: "الخياطة",
+    en: "Tailoring",
+    fr: "Couture",
+    grant: {
+      ar: "دعم إعادة الإدماج للأقمشة ومستلزمات الخياطة.",
+      en: "Reintegration support for fabric and sewing supplies.",
+      fr: "Soutien a la reintegration pour du tissu et du materiel de couture.",
+      pt: "Apoio de reintegracao para tecidos e materiais de costura.",
+      sw: "Msaada wa urejeshwaji kwa vitambaa na vifaa vya ushonaji.",
+    },
+    pt: "Costura",
+    sw: "Ushonaji",
+  },
+  "Youth Employment": {
+    ar: "تشغيل الشباب",
+    en: "Youth Employment",
+    fr: "Emploi des jeunes",
+    grant: {
+      ar: "دعم إعادة الإدماج للتدريب السلمي ومتابعة الشباب.",
+      en: "Reintegration support for peaceful livelihood training and youth follow-up.",
+      fr: "Soutien a la reintegration pour une formation pacifique aux moyens de subsistance et le suivi des jeunes.",
+      pt: "Apoio de reintegracao para formacao pacifica e acompanhamento de jovens.",
+      sw: "Msaada wa urejeshwaji kwa mafunzo ya riziki ya amani na ufuatiliaji wa vijana.",
+    },
+    pt: "Emprego juvenil",
+    sw: "Ajira ya vijana",
+  },
+  "Community Labor": {
+    ar: "عمل مجتمعي",
+    en: "Community Labor",
+    fr: "Travail communautaire",
+    grant: {
+      ar: "دعم إعادة الإدماج للنقل الآمن ومواد خدمة المجتمع.",
+      en: "Reintegration support for safe transport and community service materials.",
+      fr: "Soutien a la reintegration pour le transport sur et les materiaux de service communautaire.",
+      pt: "Apoio de reintegracao para transporte seguro e materiais de servico comunitario.",
+      sw: "Msaada wa urejeshwaji kwa usafiri salama na vifaa vya huduma ya jamii.",
+    },
+    pt: "Trabalho comunitario",
+    sw: "Kazi ya jamii",
+  },
+  "Water Access": {
+    ar: "الوصول إلى المياه",
+    en: "Water Access",
+    fr: "Acces a l'eau",
+    grant: {
+      ar: "دعم إعادة الإدماج لإصلاح الوصول إلى المياه والنقل الآمن.",
+      en: "Reintegration support for water access repair and safe transport.",
+      fr: "Soutien a la reintegration pour la reparation de l'acces a l'eau et le transport sur.",
+      pt: "Apoio de reintegracao para reparo do acesso a agua e transporte seguro.",
+      sw: "Msaada wa urejeshwaji kwa kurekebisha upatikanaji wa maji na usafiri salama.",
+    },
+    pt: "Acesso a agua",
+    sw: "Upatikanaji wa maji",
+  },
+  "Market Activity": {
+    ar: "نشاط السوق",
+    en: "Market Activity",
+    fr: "Activite de marche",
+    grant: {
+      ar: "دعم إعادة الإدماج للعودة الآمنة إلى السوق والبضائع الأولية.",
+      en: "Reintegration support for safe market return and starter goods.",
+      fr: "Soutien a la reintegration pour un retour sur au marche et des biens de demarrage.",
+      pt: "Apoio de reintegracao para retorno seguro ao mercado e bens iniciais.",
+      sw: "Msaada wa urejeshwaji kwa kurudi salama sokoni na bidhaa za kuanzia.",
+    },
+    pt: "Atividade de mercado",
+    sw: "Shughuli za soko",
+  },
+};
+
+const reintegrationContexts = {
+  "Community Return": {
+    ar: "عودة مجتمعية",
+    en: "Community Return",
+    fr: "Retour communautaire",
+    pt: "Retorno comunitario",
+    sw: "Kurudi kwa jamii",
+  },
+  "Youth Reintegration": {
+    ar: "إعادة إدماج الشباب",
+    en: "Youth Reintegration",
+    fr: "Reintegration des jeunes",
+    pt: "Reintegracao juvenil",
+    sw: "Urejeshwaji wa vijana",
+  },
+  "Family Mediation": {
+    ar: "وساطة أسرية",
+    en: "Family Mediation",
+    fr: "Mediation familiale",
+    pt: "Mediacao familiar",
+    sw: "Upatanisho wa familia",
+  },
+  "Livelihood Restoration": {
+    ar: "استعادة سبل العيش",
+    en: "Livelihood Restoration",
+    fr: "Restauration des moyens de subsistance",
+    pt: "Restauracao de meios de vida",
+    sw: "Kurejesha riziki",
+  },
+  "Displacement Recovery": {
+    ar: "تعاف من النزوح",
+    en: "Displacement Recovery",
+    fr: "Retablissement apres deplacement",
+    pt: "Recuperacao apos deslocamento",
+    sw: "Urejeshwaji baada ya uhamisho",
+  },
+  "Post-Conflict Recovery": {
+    ar: "تعاف بعد النزاع",
+    en: "Post-Conflict Recovery",
+    fr: "Retablissement post-conflit",
+    pt: "Recuperacao pos-conflito",
+    sw: "Urejeshwaji baada ya mgogoro",
+  },
+  "Cross-Border Reintegration": {
+    ar: "إعادة إدماج عابرة للحدود",
+    en: "Cross-Border Reintegration",
+    fr: "Reintegration transfrontaliere",
+    pt: "Reintegracao transfronteirica",
+    sw: "Urejeshwaji wa kuvuka mipaka",
+  },
+};
+
+function normalizeCommunityType(value) {
+  return communityAliases[value] || value || "General community";
+}
+
 const actionPatterns = {
   en: {
     low: [
@@ -408,6 +830,126 @@ function fillTemplate(template, values) {
   );
 }
 
+function getCommunityContext(value, language) {
+  const nextLanguage = normalizeLanguage(language);
+  const normalizedType = normalizeCommunityType(value);
+  const context = communityContexts[normalizedType] || communityContexts["General community"];
+
+  return {
+    displacement: Boolean(context.displacement),
+    label: context[nextLanguage] || context.en,
+    value: normalizedType,
+  };
+}
+
+function getLivelihoodContext(value, language) {
+  const nextLanguage = normalizeLanguage(language);
+  const context = livelihoodContexts[value];
+
+  if (!context) {
+    return {
+      grant: "",
+      label: "",
+      value: "",
+    };
+  }
+
+  return {
+    grant: context.grant?.[nextLanguage] || context.grant?.en || "",
+    label: context[nextLanguage] || context.en,
+    value,
+  };
+}
+
+function getReintegrationContext(value, language) {
+  const nextLanguage = normalizeLanguage(language);
+  const context = reintegrationContexts[value];
+
+  if (!context) {
+    return {
+      label: "",
+      value: "",
+    };
+  }
+
+  return {
+    label: context[nextLanguage] || context.en,
+    value,
+  };
+}
+
+const contextSentences = {
+  en({ settlement, livelihood, reintegration, impact }) {
+    const parts = [
+      settlement ? `settlement context: ${settlement}` : "",
+      livelihood ? `livelihood/resource focus: ${livelihood}` : "",
+      reintegration ? `reintegration context: ${reintegration}` : "",
+      impact ? `community impact: ${impact}` : "",
+    ].filter(Boolean);
+    return parts.length ? `The pathway is adapted for ${parts.join("; ")}.` : "";
+  },
+  sw({ settlement, livelihood, reintegration, impact }) {
+    const parts = [
+      settlement ? `mazingira ya makazi: ${settlement}` : "",
+      livelihood ? `mwelekeo wa riziki/rasilimali: ${livelihood}` : "",
+      reintegration ? `muktadha wa urejeshwaji: ${reintegration}` : "",
+      impact ? `athari kwa jamii: ${impact}` : "",
+    ].filter(Boolean);
+    return parts.length ? `Njia hii imebadilishwa kwa ${parts.join("; ")}.` : "";
+  },
+  fr({ settlement, livelihood, reintegration, impact }) {
+    const parts = [
+      settlement ? `contexte d'installation : ${settlement}` : "",
+      livelihood ? `moyen de subsistance/ressource : ${livelihood}` : "",
+      reintegration ? `contexte de reintegration : ${reintegration}` : "",
+      impact ? `impact communautaire : ${impact}` : "",
+    ].filter(Boolean);
+    return parts.length ? `Le parcours est adapte a ${parts.join("; ")}.` : "";
+  },
+  pt({ settlement, livelihood, reintegration, impact }) {
+    const parts = [
+      settlement ? `contexto de assentamento: ${settlement}` : "",
+      livelihood ? `foco de meio de vida/recurso: ${livelihood}` : "",
+      reintegration ? `contexto de reintegracao: ${reintegration}` : "",
+      impact ? `impacto comunitario: ${impact}` : "",
+    ].filter(Boolean);
+    return parts.length ? `O caminho e adaptado para ${parts.join("; ")}.` : "";
+  },
+  ar({ settlement, livelihood, reintegration, impact }) {
+    const parts = [
+      settlement ? `سياق الاستقرار: ${settlement}` : "",
+      livelihood ? `تركيز سبل العيش/المورد: ${livelihood}` : "",
+      reintegration ? `سياق إعادة الإدماج: ${reintegration}` : "",
+      impact ? `الأثر المجتمعي: ${impact}` : "",
+    ].filter(Boolean);
+    return parts.length ? `تم تكييف المسار مع ${parts.join("؛ ")}.` : "";
+  },
+};
+
+const displacementSentences = {
+  en: "Because this is a displacement-aware setting, the plan avoids exposure, protects household dignity, and keeps repair steps practical and safe.",
+  sw: "Kwa kuwa haya ni mazingira yanayohusiana na uhamisho, mpango huepuka kufichua watu, hulinda heshima ya kaya, na kuweka hatua za marekebisho ziwe za vitendo na salama.",
+  fr: "Comme il s'agit d'un contexte sensible au deplacement, le plan evite l'exposition, protege la dignite des foyers et garde les reparations pratiques et sures.",
+  pt: "Como este e um contexto sensivel ao deslocamento, o plano evita exposicao, protege a dignidade das familias e mantem reparos praticos e seguros.",
+  ar: "لأن هذا سياق مراعي للنزوح، يتجنب المسار كشف الناس، ويحمي كرامة الأسر، ويحافظ على خطوات إصلاح عملية وآمنة.",
+};
+
+function buildContextSentence(context = {}, language) {
+  const nextLanguage = normalizeLanguage(language);
+  const settlement = getCommunityContext(context.communityType, nextLanguage);
+  const livelihood = getLivelihoodContext(context.livelihoodType, nextLanguage);
+  const reintegration = getReintegrationContext(context.reintegrationContext, nextLanguage);
+  const sentence = contextSentences[nextLanguage]({
+    impact: typeof context.communityImpact === "string" ? context.communityImpact.trim() : "",
+    livelihood: livelihood.label,
+    reintegration: reintegration.label,
+    settlement: settlement.label,
+  });
+  const displacementSentence = settlement.displacement ? displacementSentences[nextLanguage] : "";
+
+  return [sentence, displacementSentence].filter(Boolean).join(" ");
+}
+
 function getCategoryContent(category, language) {
   const nextLanguage = normalizeLanguage(language);
   return (
@@ -424,46 +966,91 @@ function translateSeverity(severity, language) {
   return severityText[nextLanguage][nextSeverity] || severityText.en[nextSeverity];
 }
 
-function buildRepairActions(category, severity, language) {
+function buildRepairActions(category, severity, language, context = {}) {
   const nextLanguage = normalizeLanguage(language);
   const nextSeverity = normalizeSeverity(severity);
   const content = getCategoryContent(category, nextLanguage);
+  const contextSentence = buildContextSentence(context, nextLanguage);
 
-  return actionPatterns[nextLanguage][nextSeverity].map((action) =>
+  const actions = actionPatterns[nextLanguage][nextSeverity].map((action) =>
     fillTemplate(action, {
       focus: content.focus,
       label: content.label,
     })
   );
+
+  if (contextSentence) {
+    actions[2] = `${actions[2]} ${contextSentence}`;
+  }
+
+  return actions;
 }
 
-function buildGrantPurpose(skills, language) {
+function buildGrantPurpose({ category, context = {}, skills = "" } = {}, language) {
   const nextLanguage = normalizeLanguage(language);
+  const livelihood = getLivelihoodContext(context.livelihoodType, nextLanguage);
+
+  if (livelihood.grant) {
+    return livelihood.grant;
+  }
+
   const normalizedSkills = typeof skills === "string" ? skills.toLowerCase() : "";
   const matchingPurpose = skillGrantPurposes.find((skillPurpose) =>
     skillPurpose.keywords.some((keyword) => normalizedSkills.includes(keyword))
   );
 
-  return matchingPurpose?.purpose[nextLanguage] || defaultGrantPurpose[nextLanguage];
+  if (matchingPurpose?.purpose[nextLanguage]) {
+    return matchingPurpose.purpose[nextLanguage];
+  }
+
+  if (category === "displacement_impact") {
+    return getLivelihoodContext("Community Labor", nextLanguage).grant;
+  }
+
+  return defaultGrantPurpose[nextLanguage];
 }
 
-function buildExplanation(category, severity, language) {
+function buildExplanation(category, severity, language, context = {}) {
   const nextLanguage = normalizeLanguage(language);
   const content = getCategoryContent(category, nextLanguage);
 
-  return fillTemplate(explanationTemplates[nextLanguage], {
-    focus: content.focus,
-    label: content.label,
-    severity: translateSeverity(severity, nextLanguage),
-  });
+  return [
+    fillTemplate(explanationTemplates[nextLanguage], {
+      focus: content.focus,
+      label: content.label,
+      severity: translateSeverity(severity, nextLanguage),
+    }),
+    buildContextSentence(context, nextLanguage),
+  ].filter(Boolean).join(" ");
+}
+
+function translateCommunityContext(value, language) {
+  return getCommunityContext(value, language).label;
+}
+
+function translateLivelihoodContext(value, language) {
+  return getLivelihoodContext(value, language).label || "";
+}
+
+function translateReintegrationContext(value, language) {
+  return getReintegrationContext(value, language).label || "";
+}
+
+function buildContextSummary(context = {}, language = "en") {
+  const nextLanguage = normalizeLanguage(language);
+  return buildContextSentence(context, nextLanguage);
 }
 
 module.exports = {
+  buildContextSummary,
   buildExplanation,
   buildGrantPurpose,
   buildRepairActions,
   getCategoryContent,
   normalizeLanguage,
   normalizeSeverity,
+  translateCommunityContext,
+  translateLivelihoodContext,
+  translateReintegrationContext,
   translateSeverity,
 };

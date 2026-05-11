@@ -3,6 +3,7 @@ import { useI18n } from "./LanguageProvider.jsx";
 import MockWhatsAppNotice from "./MockWhatsAppNotice.jsx";
 import { useToast } from "./ToastProvider.jsx";
 import { downloadCertificate } from "../utils/certificate.js";
+import useConnectivity from "../hooks/useConnectivity.js";
 import {
   getSharedDisplayName,
   getSharedPhoneNumber,
@@ -26,6 +27,7 @@ function buildCompletionSms(peaceBond, t) {
 function CertificateButton({ completedActions, peaceBond, progress }) {
   const { t } = useI18n();
   const { showToast } = useToast();
+  const connectivity = useConnectivity();
   const [sentSms, setSentSms] = useState(null);
   const [sentWhatsApp, setSentWhatsApp] = useState(null);
 
@@ -89,6 +91,11 @@ function CertificateButton({ completedActions, peaceBond, progress }) {
       <p className="mt-2 text-base leading-7 text-stone-700">
         {t("certificate.footerStatement")}
       </p>
+      {(connectivity.isOffline || connectivity.isLimited) && (
+        <p className="mt-3 rounded-lg border border-earth-clay/20 bg-earth-sand/60 px-4 py-3 text-sm text-stone-700">
+          {t("offline.connectionRecommended")}
+        </p>
+      )}
       <button
         className="mt-4 rounded-lg bg-earth-clay px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#9f6141]"
         onClick={handleDownload}

@@ -1,27 +1,132 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import GuidedDraftingAssistant from "./GuidedDraftingAssistant.jsx";
 import { useI18n } from "./LanguageProvider.jsx";
+import useConnectivity from "../hooks/useConnectivity.js";
+import {
+  CASE_DRAFT_KEY,
+  clearLocalDraft,
+  hasMeaningfulDraftValue,
+  readLocalDraft,
+  saveLocalDraft,
+} from "../utils/offlineSupport.js";
+import {
+  communityContextOptions,
+  livelihoodContextOptions,
+  reintegrationContextOptions,
+  translateCommunityType,
+  translateLivelihoodType,
+  translateReintegrationContext,
+} from "../utils/peacebondContent.js";
+
+const legacyCommunityTypeMap = {
+  "Border community": "Border Community",
+  "Coastal fishing community": "Fishing Community",
+  "Market town": "Market Community",
+  "Pastoral community": "Livestock Community",
+  "Refugee settlement": "Refugee Settlement",
+  "Rural village": "Rural Community",
+  "Urban settlement": "Urban Community",
+};
+
+function normalizeDraftCommunityType(value) {
+  return legacyCommunityTypeMap[value] || value || "Rural Community";
+}
 
 function HarmForm({ error, isGenerating, onGenerate }) {
-  const { t } = useI18n();
-  const [fighterName, setFighterName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [nationality, setNationality] = useState("");
-  const [communityType, setCommunityType] = useState("Rural village");
-  const [protectedIdentity, setProtectedIdentity] = useState(false);
-  const [skills, setSkills] = useState("");
-  const [severity, setSeverity] = useState("moderate");
-  const [harmDescription, setHarmDescription] = useState("");
+  const { language, t } = useI18n();
+  const connectivity = useConnectivity();
+  const initialDraft = useMemo(() => readLocalDraft(CASE_DRAFT_KEY, {}), []);
+  const [fighterName, setFighterName] = useState(initialDraft.fighterName || "");
+  const [phoneNumber, setPhoneNumber] = useState(initialDraft.phoneNumber || "");
+  const [nationality, setNationality] = useState(initialDraft.nationality || "");
+  const [communityType, setCommunityType] = useState(
+    normalizeDraftCommunityType(initialDraft.communityType)
+  );
+  const [livelihoodType, setLivelihoodType] = useState(
+    initialDraft.livelihoodType || "Community Labor"
+  );
+  const [reintegrationContext, setReintegrationContext] = useState(
+    initialDraft.reintegrationContext || "Community Return"
+  );
+  const [communityImpact, setCommunityImpact] = useState(initialDraft.communityImpact || "");
+  const [protectedIdentity, setProtectedIdentity] = useState(
+    Boolean(initialDraft.protectedIdentity)
+  );
+  const [skills, setSkills] = useState(initialDraft.skills || "");
+  const [severity, setSeverity] = useState(initialDraft.severity || "moderate");
+  const [harmDescription, setHarmDescription] = useState(initialDraft.harmDescription || "");
+  const [hasRecoveredDraft] = useState(() =>
+    hasMeaningfulDraftValue(initialDraft, [
+      "fighterName",
+      "phoneNumber",
+      "nationality",
+      "communityImpact",
+      "skills",
+      "harmDescription",
+      "protectedIdentity",
+    ])
+  );
+
+  useEffect(() => {
+    const draft = {
+      communityImpact,
+      communityType,
+      fighterName,
+      harmDescription,
+      livelihoodType,
+      nationality,
+      phoneNumber,
+      protectedIdentity,
+      reintegrationContext,
+      severity,
+      skills,
+    };
+    const hasDraft =
+      hasMeaningfulDraftValue(draft, [
+        "fighterName",
+        "phoneNumber",
+        "nationality",
+        "communityImpact",
+        "skills",
+        "harmDescription",
+        "protectedIdentity",
+      ]) ||
+      communityType !== "Rural Community" ||
+      livelihoodType !== "Community Labor" ||
+      reintegrationContext !== "Community Return" ||
+      severity !== "moderate";
+
+    if (hasDraft) {
+      saveLocalDraft(CASE_DRAFT_KEY, draft);
+    } else {
+      clearLocalDraft(CASE_DRAFT_KEY);
+    }
+  }, [
+    communityImpact,
+    communityType,
+    fighterName,
+    harmDescription,
+    livelihoodType,
+    nationality,
+    phoneNumber,
+    protectedIdentity,
+    reintegrationContext,
+    severity,
+    skills,
+  ]);
 
   function handleSubmit(event) {
     event.preventDefault();
     onGenerate({
+      communityImpact,
       communityType,
       fighterName,
       harmDescription,
+      livelihoodType,
       nationality,
       phoneNumber,
       protectedIdentity,
+      reintegrationContext,
       severity,
       skills,
     });
@@ -30,6 +135,12 @@ function HarmForm({ error, isGenerating, onGenerate }) {
   return (
     <section className="rounded-lg border border-stone-200 bg-white/90 p-5 shadow-sm sm:p-6">
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        {hasRecoveredDraft && (
+          <p className="rounded-lg border border-earth-olive/20 bg-earth-sand/60 px-4 py-3 text-sm font-semibold text-earth-soil">
+            {t("offline.caseDraftRecovered")}
+          </p>
+        )}
+
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label className="text-sm font-semibold text-earth-soil" htmlFor="fighter-name">
@@ -74,10 +185,10 @@ function HarmForm({ error, isGenerating, onGenerate }) {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <label className="text-sm font-semibold text-earth-soil" htmlFor="community-type">
-              {t("form.communityType")}
+              {t("form.settlementType")}
             </label>
             <select
               className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
@@ -85,14 +196,63 @@ function HarmForm({ error, isGenerating, onGenerate }) {
               onChange={(event) => setCommunityType(event.target.value)}
               value={communityType}
             >
-              <option value="Rural village">{t("form.community.rural")}</option>
-              <option value="Market town">{t("form.community.market")}</option>
-              <option value="Pastoral community">{t("form.community.pastoral")}</option>
-              <option value="Border community">{t("form.community.border")}</option>
-              <option value="Urban settlement">{t("form.community.urban")}</option>
+              {communityContextOptions.map((group) => (
+                <optgroup key={group.groupKey} label={t(group.groupKey)}>
+                  {group.options.map((option) => (
+                    <option key={option} value={option}>
+                      {translateCommunityType(option, language)}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
             </select>
           </div>
 
+          <div>
+            <label className="text-sm font-semibold text-earth-soil" htmlFor="livelihood-type">
+              {t("form.livelihoodType")}
+            </label>
+            <select
+              className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
+              id="livelihood-type"
+              onChange={(event) => setLivelihoodType(event.target.value)}
+              value={livelihoodType}
+            >
+              {livelihoodContextOptions.map((option) => (
+                <option key={option} value={option}>
+                  {translateLivelihoodType(option, language)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label
+              className="text-sm font-semibold text-earth-soil"
+              htmlFor="reintegration-context"
+            >
+              {t("form.reintegrationContext")}
+            </label>
+            <select
+              className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
+              id="reintegration-context"
+              onChange={(event) => setReintegrationContext(event.target.value)}
+              value={reintegrationContext}
+            >
+              {reintegrationContextOptions.map((option) => (
+                <option key={option} value={option}>
+                  {translateReintegrationContext(option, language)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <p className="rounded-lg border border-earth-olive/20 bg-earth-sand/50 px-4 py-3 text-sm leading-6 text-stone-600">
+          {t("form.contextHelper")}
+        </p>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <label className="text-sm font-semibold text-earth-soil" htmlFor="skills">
               {t("form.skills")}
@@ -104,6 +264,20 @@ function HarmForm({ error, isGenerating, onGenerate }) {
               placeholder={t("form.placeholderSkills")}
               type="text"
               value={skills}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-semibold text-earth-soil" htmlFor="community-impact">
+              {t("form.communityImpact")}
+            </label>
+            <input
+              className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-base text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
+              id="community-impact"
+              onChange={(event) => setCommunityImpact(event.target.value)}
+              placeholder={t("form.placeholderCommunityImpact")}
+              type="text"
+              value={communityImpact}
             />
           </div>
 
@@ -157,9 +331,12 @@ function HarmForm({ error, isGenerating, onGenerate }) {
           />
           <GuidedDraftingAssistant
             context={{
+              communityImpact,
               communityType,
               fighterName,
+              livelihoodType,
               nationality,
+              reintegrationContext,
               severity,
               skills,
             }}
@@ -173,6 +350,16 @@ function HarmForm({ error, isGenerating, onGenerate }) {
         {error && (
           <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
             {error}
+          </p>
+        )}
+
+        {(connectivity.isOffline || connectivity.isLimited || hasRecoveredDraft) && (
+          <p className="rounded-lg border border-earth-clay/20 bg-earth-sand/60 px-4 py-3 text-sm text-stone-700">
+            {connectivity.isOffline
+              ? t("offline.caseDraftSaved")
+              : connectivity.isLimited
+                ? t("offline.connectionRecommended")
+                : t("offline.savedLocallyShort")}
           </p>
         )}
 

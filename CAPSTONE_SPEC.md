@@ -202,7 +202,6 @@ It aligns with principles of:
 
 - Integration with mobile money APIs (M-Pesa, Orange Money)
 - Voice input for low-literacy users
-- Multi-language support (Swahili, French, Arabic)
 - NGO dashboard for tracking reintegration cases
 - Offline-first mobile app version
 

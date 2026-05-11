@@ -11,6 +11,13 @@ import { useToast } from "../components/ToastProvider.jsx";
 import { getPeaceBond, submitCompletionReport, updatePeaceBondProgress } from "../utils/api.js";
 import { getStaffUser } from "../utils/auth.js";
 import { addNotification } from "../utils/notifications.js";
+import {
+  clearLocalDraft,
+  clearSyncPending,
+  getCompletionReportDraftKey,
+  isLikelyOfflineError,
+  markSyncPending,
+} from "../utils/offlineSupport.js";
 import { getParticipantId, isProtectedIdentity } from "../utils/protectedIdentity.js";
 
 function calculateProgress(completedActions) {
@@ -40,6 +47,7 @@ function PeaceBondDetail() {
   const [peaceBond, setPeaceBond] = useState(null);
   const [completedActions, setCompletedActions] = useState([false, false, false]);
   const [error, setError] = useState("");
+  const [isOfflineLoadError, setIsOfflineLoadError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const [isSavingProgress, setIsSavingProgress] = useState(false);
@@ -66,15 +74,30 @@ function PeaceBondDetail() {
 
       try {
         setError("");
+        setIsOfflineLoadError(false);
         setIsLoading(true);
         const loadedPeaceBond = await getPeaceBond(id, staffUser._id);
         setPeaceBond(loadedPeaceBond);
         setCompletedActions(loadedPeaceBond.completedActions || [false, false, false]);
       } catch (requestError) {
+        if (isLikelyOfflineError(requestError)) {
+          const offlineMessage = t("offline.bannerOffline");
+          setError(offlineMessage);
+          setIsOfflineLoadError(true);
+          showToast({
+            title: t("offline.statusOffline"),
+            message: offlineMessage,
+            type: "warning",
+            duration: 6200,
+          });
+          return;
+        }
+
         const errorMessage =
           requestError.response?.data?.message ||
           t("workspace.loadError");
         setError(errorMessage);
+        setIsOfflineLoadError(false);
         showToast({
           title: t("workspace.loadErrorTitle"),
           message: errorMessage,
@@ -111,6 +134,7 @@ function PeaceBondDetail() {
       );
       setPeaceBond(updatedPeaceBond);
       setCompletedActions(updatedPeaceBond.completedActions);
+      clearSyncPending();
 
       if (previousProgress < 100 && updatedPeaceBond.progress === 100) {
         addNotification({
@@ -132,6 +156,28 @@ function PeaceBondDetail() {
         });
       }
     } catch (requestError) {
+      if (isLikelyOfflineError(requestError)) {
+        const pendingProgress = calculateProgress(nextActions);
+        markSyncPending("repair progress");
+        setPeaceBond((currentPeaceBond) =>
+          currentPeaceBond
+            ? {
+                ...currentPeaceBond,
+                completedActions: nextActions,
+                progress: pendingProgress,
+              }
+            : currentPeaceBond
+        );
+        setError("");
+        showToast({
+          title: t("offline.savedLocally"),
+          message: t("offline.pendingDetail"),
+          type: "warning",
+          duration: 6200,
+        });
+        return;
+      }
+
       setCompletedActions(previousActions);
       const errorMessage =
         requestError.response?.data?.message ||
@@ -162,6 +208,8 @@ function PeaceBondDetail() {
         staffUser._id
       );
       setPeaceBond(updatedPeaceBond);
+      clearLocalDraft(getCompletionReportDraftKey(peaceBond._id));
+      clearSyncPending();
       addNotification({
         title: t("toast.completionReportSubmitted"),
         message: t("toast.completionReportSubmittedMessage"),
@@ -174,6 +222,18 @@ function PeaceBondDetail() {
         duration: 6200,
       });
     } catch (requestError) {
+      if (isLikelyOfflineError(requestError)) {
+        markSyncPending("completion report");
+        setError("");
+        showToast({
+          title: t("offline.savedLocally"),
+          message: t("offline.reportDraftSaved"),
+          type: "warning",
+          duration: 6200,
+        });
+        return;
+      }
+
       const errorMessage =
         requestError.response?.data?.message ||
         t("workspace.reportError");
@@ -198,7 +258,13 @@ function PeaceBondDetail() {
 
   if (error && !peaceBond) {
     return (
-      <section className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-800 shadow-sm">
+      <section
+        className={`rounded-lg border p-6 shadow-sm ${
+          isOfflineLoadError
+            ? "border-earth-clay/20 bg-earth-sand/70 text-earth-soil"
+            : "border-red-200 bg-red-50 text-red-800"
+        }`}
+      >
         <p className="text-sm font-semibold">{error}</p>
         <Link
           className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-red-800"

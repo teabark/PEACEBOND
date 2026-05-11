@@ -8,6 +8,10 @@ function PeaceBondCard({ peaceBond }) {
   const localizedPeaceBond = getLocalizedPeaceBond(peaceBond, language);
   const skills = localizedPeaceBond.skills || t("card.skillsFallback");
   const nationality = localizedPeaceBond.nationality || t("app.notRecorded");
+  const livelihood = localizedPeaceBond.livelihoodTypeLabel || t("app.notRecorded");
+  const reintegrationContext =
+    localizedPeaceBond.reintegrationContextLabel || t("app.notRecorded");
+  const communityImpact = localizedPeaceBond.communityImpact || t("app.notRecorded");
   const protectedCase = isProtectedIdentity(localizedPeaceBond);
   const participantId = getParticipantId(localizedPeaceBond);
 
@@ -53,6 +57,20 @@ function PeaceBondCard({ peaceBond }) {
         </p>
         <p>
           <span className="font-semibold text-earth-soil">{t("card.skills")}:</span> {skills}
+        </p>
+        <p>
+          <span className="font-semibold text-earth-soil">{t("card.livelihood")}:</span>{" "}
+          {livelihood}
+        </p>
+        <p>
+          <span className="font-semibold text-earth-soil">
+            {t("card.reintegrationContext")}:
+          </span>{" "}
+          {reintegrationContext}
+        </p>
+        <p>
+          <span className="font-semibold text-earth-soil">{t("card.communityImpact")}:</span>{" "}
+          {communityImpact}
         </p>
         <p className="capitalize">
           <span className="font-semibold text-earth-soil">{t("card.severity")}:</span>{" "}

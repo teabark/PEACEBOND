@@ -8,6 +8,13 @@ import { useToast } from "../components/ToastProvider.jsx";
 import { createPeaceBond } from "../utils/api.js";
 import { getStaffUser } from "../utils/auth.js";
 import { addNotification } from "../utils/notifications.js";
+import {
+  CASE_DRAFT_KEY,
+  clearLocalDraft,
+  clearSyncPending,
+  isLikelyOfflineError,
+  markSyncPending,
+} from "../utils/offlineSupport.js";
 import { translateCommunityType } from "../utils/peacebondContent.js";
 import { getSharedDisplayName, getSharedPhoneNumber } from "../utils/protectedIdentity.js";
 
@@ -22,12 +29,15 @@ function CreatePeaceBond() {
   const [successMessage, setSuccessMessage] = useState("");
 
   async function handleCreatePeaceBond({
+    communityImpact,
     communityType,
     fighterName,
     harmDescription,
+    livelihoodType,
     nationality,
     phoneNumber,
     protectedIdentity,
+    reintegrationContext,
     severity,
     skills,
   }) {
@@ -50,18 +60,23 @@ function CreatePeaceBond() {
 
     try {
       const peaceBond = await createPeaceBond({
+        communityImpact,
         communityType,
         createdBy: staffUser._id,
         fighterName,
         harmDescription,
         language,
+        livelihoodType,
         nationality,
         phoneNumber,
         protectedIdentity,
+        reintegrationContext,
         severity,
         skills,
       });
       setCreatedPeaceBond(peaceBond);
+      clearLocalDraft(CASE_DRAFT_KEY);
+      clearSyncPending();
       const sharedName = getSharedDisplayName(peaceBond, t);
       addNotification({
         title: t("toast.caseCreated"),
@@ -90,6 +105,18 @@ function CreatePeaceBond() {
         type: "success",
       });
     } catch (requestError) {
+      if (isLikelyOfflineError(requestError)) {
+        markSyncPending("peacebond case creation");
+        setSuccessMessage(t("offline.caseDraftSaved"));
+        showToast({
+          title: t("offline.savedLocally"),
+          message: t("offline.pendingDetail"),
+          type: "warning",
+          duration: 6200,
+        });
+        return;
+      }
+
       const errorMessage =
         requestError.response?.data?.message ||
         t("form.submitError");

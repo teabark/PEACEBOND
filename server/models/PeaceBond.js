@@ -36,6 +36,21 @@ const peaceBondSchema = new mongoose.Schema(
       trim: true,
       default: "General community",
     },
+    livelihoodType: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    reintegrationContext: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    communityImpact: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     skills: {
       type: String,
       trim: true,

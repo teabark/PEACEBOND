@@ -23,9 +23,9 @@ function ImpactStatCard({ label, value }) {
   }, [value]);
 
   return (
-    <article className="rounded-lg border border-stone-200 bg-white/90 p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
-      <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">{label}</p>
-      <p className="mt-3 text-3xl font-semibold text-earth-soil">{displayValue}</p>
+    <article className="rounded-3xl border border-earth-clay/15 bg-[#fffdf8] p-6 shadow-lg shadow-earth-soil/10 transition duration-200 hover:-translate-y-0.5 hover:border-earth-olive/20 hover:shadow-xl hover:shadow-earth-soil/10">
+      <p className="text-xs font-semibold uppercase tracking-normal text-earth-clay/90">{label}</p>
+      <p className="mt-5 text-4xl font-semibold leading-none text-earth-soil">{displayValue}</p>
     </article>
   );
 }

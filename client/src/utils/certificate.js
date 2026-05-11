@@ -6,6 +6,7 @@ import {
   translateCommunityType,
   translateCategory,
   translateGrantPurpose,
+  translateLivelihoodType,
   translateRepairActions,
   translateRitual,
   translateSeverity,
@@ -97,7 +98,11 @@ function redactProtectedIdentityText(peaceBond, text, language) {
   }
 
   const t = (key, params) => translateWithFallback(language, key, params);
-  return asText(text).replaceAll(peaceBond.fighterName, getParticipantReference(peaceBond, t));
+  const escapedName = peaceBond.fighterName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return asText(text).replace(
+    new RegExp(escapedName, "gi"),
+    getParticipantReference(peaceBond, t)
+  );
 }
 
 function getReportValue(peaceBond, field, fallback, language = "en") {
@@ -500,10 +505,14 @@ function drawCertificatePage(doc, peaceBond, completedActions, progress, languag
 
   const cellGap = 5;
   const cellWidth = (LAYOUT.width - cellGap * 3) / 4;
+  const communityContextValue = [
+    localizedPeaceBond.communityTypeLabel || translateCommunityType(peaceBond.communityType, language),
+    localizedPeaceBond.livelihoodTypeLabel || translateLivelihoodType(peaceBond.livelihoodType, language),
+  ].filter(Boolean).join(" / ");
   drawInfoCell(
     doc,
     t("certificate.communityType"),
-    localizedPeaceBond.communityTypeLabel || translateCommunityType(peaceBond.communityType, language),
+    communityContextValue,
     18,
     119,
     cellWidth

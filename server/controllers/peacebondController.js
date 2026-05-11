@@ -21,6 +21,10 @@ function buildParticipantId(id) {
   return `PB-${year}-${String(suffix).padStart(6, "0")}`;
 }
 
+function parseProtectedIdentity(value) {
+  return value === true || value === "true" || value === 1 || value === "1" || value === "on";
+}
+
 async function listPeaceBonds(req, res) {
   const { createdBy } = req.query;
 
@@ -43,11 +47,14 @@ async function createPeaceBond(req, res) {
     fighterName,
     harmDescription,
     language,
+    livelihoodType,
     nationality,
     phoneNumber,
     protectedIdentity,
+    reintegrationContext,
     severity = "moderate",
     skills,
+    communityImpact,
   } = req.body;
 
   if (!isDatabaseConnected()) {
@@ -77,11 +84,21 @@ async function createPeaceBond(req, res) {
   }
 
   const peaceBondId = new mongoose.Types.ObjectId();
-  const isProtectedIdentity = protectedIdentity === true;
+  const isProtectedIdentity = parseProtectedIdentity(protectedIdentity);
 
   const peaceBond = await PeaceBond.create({
     _id: peaceBondId,
-    ...generatePeaceBond({ fighterName, harmDescription, language, severity, skills }),
+    ...generatePeaceBond({
+      communityImpact,
+      communityType,
+      fighterName,
+      harmDescription,
+      language,
+      livelihoodType,
+      reintegrationContext,
+      severity,
+      skills,
+    }),
     phoneNumber: typeof phoneNumber === "string" ? phoneNumber.trim() : "",
     nationality: typeof nationality === "string" ? nationality.trim() : "",
     protectedIdentity: isProtectedIdentity,
@@ -89,6 +106,10 @@ async function createPeaceBond(req, res) {
     communityType: typeof communityType === "string" && communityType.trim()
       ? communityType.trim()
       : "General community",
+    livelihoodType: typeof livelihoodType === "string" ? livelihoodType.trim() : "",
+    reintegrationContext:
+      typeof reintegrationContext === "string" ? reintegrationContext.trim() : "",
+    communityImpact: typeof communityImpact === "string" ? communityImpact.trim() : "",
     skills: typeof skills === "string" ? skills.trim() : "",
     createdBy,
   });

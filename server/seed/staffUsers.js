@@ -38,6 +38,7 @@ function daysAgo(days) {
 function buildPeaceBondCase({
   category,
   communityResponse = "",
+  communityImpact = "",
   communityType,
   completedActions,
   completionDaysAgo,
@@ -47,8 +48,10 @@ function buildPeaceBondCase({
   grantAmount,
   grantPurpose,
   harmDescription,
+  livelihoodType = "",
   nationality,
   phoneNumber,
+  reintegrationContext = "",
   repairActions,
   ritual,
   severity,
@@ -62,6 +65,7 @@ function buildPeaceBondCase({
 
   return {
     category,
+    communityImpact,
     communityType,
     completedActions,
     completedAt,
@@ -84,12 +88,14 @@ function buildPeaceBondCase({
     grantReleased: isComplete,
     grantReleasedAt: isComplete ? completedAt : null,
     harmDescription,
+    livelihoodType,
     nationality,
     phoneNumber,
     progress,
     repairActions,
     reportSubmitted: isComplete,
     reportSubmittedAt: isComplete ? completedAt : null,
+    reintegrationContext,
     ritual,
     severity,
   };
@@ -100,7 +106,8 @@ const demoPeaceBondCases = [
     staffEmail: "alice@peacebond.org",
     caseData: buildPeaceBondCase({
       category: "theft_livestock",
-      communityType: "Pastoral community",
+      communityImpact: "Restitution and grazing trust between neighboring households.",
+      communityType: "Livestock Community",
       completedActions: [true, true, false],
       demoSeedKey: "demo-alice-livestock-restitution",
       explanation:
@@ -110,8 +117,10 @@ const demoPeaceBondCases = [
       grantPurpose: "Reintegration support for goat feed, transport, and basic herding tools.",
       harmDescription:
         "Daniel admitted taking two goats during a night dispute between neighboring families. The affected household wants restitution and a mediated return to shared grazing routines.",
+      livelihoodType: "Livestock",
       nationality: "Kenyan",
       phoneNumber: "+254 711 204 118",
+      reintegrationContext: "Community Return",
       repairActions: [
         "Agree on a restitution schedule with the affected household, elders, and mediator.",
         "Complete supervised herding support and water-carrying labor for the affected family.",
@@ -126,7 +135,8 @@ const demoPeaceBondCases = [
     staffEmail: "alice@peacebond.org",
     caseData: buildPeaceBondCase({
       category: "land_dispute",
-      communityType: "Rural village",
+      communityImpact: "Boundary trust, farm access, and reduced family tension.",
+      communityType: "Farming Community",
       completedActions: [true, false, false],
       demoSeedKey: "demo-alice-land-boundary",
       explanation:
@@ -136,8 +146,10 @@ const demoPeaceBondCases = [
       grantPurpose: "Support for boundary marker materials and transport to mediation meetings.",
       harmDescription:
         "A disputed farm boundary led Beatrice to remove marker stones from a neighbor's field. The families agreed to a mediator-led boundary walk.",
+      livelihoodType: "Farming",
       nationality: "Kenyan",
       phoneNumber: "+254 733 918 402",
+      reintegrationContext: "Family Mediation",
       repairActions: [
         "Attend a boundary mediation meeting with elders and affected household representatives.",
         "Help restore agreed boundary markers using simple materials provided through mediation.",
@@ -154,7 +166,8 @@ const demoPeaceBondCases = [
       category: "destruction_property",
       communityResponse:
         "Fishing representatives reported that the repair work reduced tension at the landing site. The affected boat owner accepted the apology and welcomed continued peaceful work.",
-      communityType: "Coastal fishing community",
+      communityImpact: "Landing-site trust, fishing equipment repair, and safe access to shoreline work.",
+      communityType: "Fishing Community",
       completedActions: [true, true, true],
       completionDaysAgo: 5,
       demoSeedKey: "demo-john-fishing-net-repair",
@@ -165,8 +178,10 @@ const demoPeaceBondCases = [
       grantPurpose: "Reintegration starter support for net mending supplies and safe transport to fishing work.",
       harmDescription:
         "Peter damaged fishing nets after a shoreline argument, leaving another fisher unable to work for several days. The community requested repair labor and mediated reconciliation.",
+      livelihoodType: "Fishing",
       nationality: "Kenyan",
       phoneNumber: "+254 722 640 903",
+      reintegrationContext: "Livelihood Restoration",
       repairActions: [
         "Meet the affected fisher with a mediator and acknowledge the damage caused.",
         "Complete supervised net repair labor until the damaged equipment is usable again.",
@@ -185,7 +200,8 @@ const demoPeaceBondCases = [
     staffEmail: "john@peacebond.org",
     caseData: buildPeaceBondCase({
       category: "verbal_threats",
-      communityType: "Market town",
+      communityImpact: "Market trust, vendor safety, and peaceful trading routines.",
+      communityType: "Market Community",
       completedActions: [true, false, false],
       demoSeedKey: "demo-john-market-threats",
       explanation:
@@ -195,8 +211,10 @@ const demoPeaceBondCases = [
       grantPurpose: "Transport support for mediation check-ins and peaceful market re-entry.",
       harmDescription:
         "Asha made verbal threats during a market dispute over fish sales. Vendors asked for a mediated apology and a respectful contact agreement.",
+      livelihoodType: "Market Activity",
       nationality: "Tanzanian",
       phoneNumber: "+255 746 120 884",
+      reintegrationContext: "Livelihood Restoration",
       repairActions: [
         "Offer a clear mediated apology for the words used and the fear caused.",
         "Agree on respectful market contact boundaries with vendor representatives present.",
@@ -213,7 +231,8 @@ const demoPeaceBondCases = [
       category: "militia_armed",
       communityResponse:
         "Youth mentors and elders acknowledged Samuel's testimony and service work. The community agreed to support continued mentoring while maintaining nonviolence check-ins.",
-      communityType: "Border community",
+      communityImpact: "Youth safety, cross-border trust, and nonviolent livelihood support.",
+      communityType: "Border Community",
       completedActions: [true, true, true],
       completionDaysAgo: 9,
       demoSeedKey: "demo-fatima-youth-reintegration",
@@ -224,8 +243,10 @@ const demoPeaceBondCases = [
       grantPurpose: "Reintegration support for carpentry tools and youth mentoring transport.",
       harmDescription:
         "Samuel returned after militia involvement and wants to rebuild trust with youth leaders and families affected by recruitment pressure.",
+      livelihoodType: "Youth Employment",
       nationality: "Ugandan",
       phoneNumber: "+256 770 430 119",
+      reintegrationContext: "Cross-Border Reintegration",
       repairActions: [
         "Give formal accountability testimony before mediators, elders, and youth safety representatives.",
         "Complete an extended supervised service plan repairing the community youth hall.",
@@ -244,7 +265,8 @@ const demoPeaceBondCases = [
     staffEmail: "fatima@peacebond.org",
     caseData: buildPeaceBondCase({
       category: "destruction_property",
-      communityType: "Urban settlement",
+      communityImpact: "Shelter-area kiosk safety, small trade confidence, and youth return.",
+      communityType: "Displacement Settlement",
       completedActions: [true, true, false],
       demoSeedKey: "demo-fatima-property-repair",
       explanation:
@@ -253,9 +275,11 @@ const demoPeaceBondCases = [
       grantAmount: 47,
       grantPurpose: "Support for paint, replacement boards, and supervised repair transport.",
       harmDescription:
-        "Mariam broke a kiosk door during a youth group confrontation. The owner requested repair labor and a mediated safety commitment before full return.",
+        "Mariam broke a kiosk door during a youth group confrontation in a relocation market area. The owner requested repair labor and a mediated safety commitment before full return.",
+      livelihoodType: "Small Trade",
       nationality: "South Sudanese",
       phoneNumber: "+211 922 640 511",
+      reintegrationContext: "Displacement Recovery",
       repairActions: [
         "Join the kiosk owner and mediator to agree on a practical repair schedule.",
         "Complete supervised repair labor until the kiosk door is safe and usable.",
@@ -314,7 +338,9 @@ async function seedPeaceBondCases(staffByEmail) {
     });
 
     if (existingCase) {
-      results.push({ key: demoCase.caseData.demoSeedKey, status: "already exists" });
+      existingCase.set(demoCase.caseData);
+      await existingCase.save();
+      results.push({ key: demoCase.caseData.demoSeedKey, status: "updated" });
       continue;
     }
 

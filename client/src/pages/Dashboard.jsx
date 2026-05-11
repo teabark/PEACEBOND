@@ -59,14 +59,14 @@ function Dashboard() {
   const recentPeaceBonds = peaceBonds.slice(0, 4);
 
   return (
-    <div className="flex flex-col gap-6">
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <div className="flex flex-col gap-10">
+      <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {impactStats.map((stat) => (
           <ImpactStatCard key={stat.label} label={stat.label} value={stat.value} />
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <section className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_390px]">
         <ActivePeaceBonds
           emptyMessage={t("dashboard.emptyActive")}
           error={error}
@@ -76,11 +76,11 @@ function Dashboard() {
           title={t("dashboard.activeSummary")}
         />
 
-        <section className="rounded-lg border border-stone-200 bg-white/90 p-5 shadow-sm sm:p-6">
-          <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">
+        <section className="rounded-3xl border border-earth-clay/15 bg-[#fffdf8] p-6 shadow-lg shadow-earth-soil/10">
+          <p className="text-xs font-semibold uppercase tracking-normal text-earth-clay/90">
             {t("dashboard.recentActivity")}
           </p>
-          <div className="mt-5 flex flex-col gap-3">
+          <div className="mt-6 flex flex-col gap-4">
             {recentPeaceBonds.length === 0 ? (
               <p className="text-sm leading-6 text-stone-600">
                 {t("dashboard.recentEmpty")}
@@ -90,24 +90,27 @@ function Dashboard() {
                 const protectedCase = isProtectedIdentity(peaceBond);
 
                 return (
-                  <article className="rounded-lg bg-earth-sand/70 p-4" key={peaceBond._id}>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-semibold text-earth-soil">
-                      {getSharedDisplayName(peaceBond, t)}
+                  <article
+                    className="rounded-2xl border border-earth-clay/10 bg-[#f8eddf] p-4 transition duration-200 hover:border-earth-olive/20 hover:bg-white"
+                    key={peaceBond._id}
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-semibold text-earth-soil">
+                        {getSharedDisplayName(peaceBond, t)}
+                      </p>
+                      {protectedCase && <ProtectedIdentityBadge />}
+                    </div>
+                    {!protectedCase && peaceBond.nationality && (
+                      <p className="mt-1 text-xs font-semibold text-earth-olive">
+                        {t("card.nationality")}: {peaceBond.nationality}
+                      </p>
+                    )}
+                    <p className="mt-2 text-xs capitalize leading-5 text-stone-600">
+                      {translateCaseTitle(peaceBond, language)} - {t("progress.complete", {
+                        progress: peaceBond.progress,
+                      })}
                     </p>
-                    {protectedCase && <ProtectedIdentityBadge />}
-                  </div>
-                  {!protectedCase && peaceBond.nationality && (
-                    <p className="mt-1 text-xs font-semibold text-earth-olive">
-                      {t("card.nationality")}: {peaceBond.nationality}
-                    </p>
-                  )}
-                  <p className="mt-1 text-xs capitalize text-stone-600">
-                    {translateCaseTitle(peaceBond, language)} - {t("progress.complete", {
-                      progress: peaceBond.progress,
-                    })}
-                  </p>
-                </article>
+                  </article>
                 );
               })
             )}

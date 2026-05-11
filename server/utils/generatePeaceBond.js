@@ -16,9 +16,12 @@ const severityGrantRanges = {
 
 const categoryGrantAdjustments = {
   destruction_property: 5,
+  displacement_impact: 8,
   general_harm: -3,
   land_dispute: 0,
+  livelihood_disruption: 4,
   militia_armed: 10,
+  resource_theft: 2,
   theft_livestock: 0,
   verbal_threats: -2,
   violence_fighting: 5,
@@ -30,12 +33,15 @@ function clamp(value, min, max) {
 
 function findTemplate(harmDescription) {
   const normalizedDescription = harmDescription.toLowerCase();
+  const rankedTemplate = peacebondTemplates
+    .map((template) => ({
+      score: template.keywords.filter((keyword) => normalizedDescription.includes(keyword))
+        .length,
+      template,
+    }))
+    .sort((first, second) => second.score - first.score)[0];
 
-  return (
-    peacebondTemplates.find((template) =>
-      template.keywords.some((keyword) => normalizedDescription.includes(keyword))
-    ) || defaultTemplate
-  );
+  return rankedTemplate?.score > 0 ? rankedTemplate.template : defaultTemplate;
 }
 
 function buildGrantAmount(category, severity) {
@@ -46,16 +52,26 @@ function buildGrantAmount(category, severity) {
 
 function generatePeaceBond({
   fighterName,
+  communityImpact = "",
+  communityType = "General community",
   harmDescription,
   language = "en",
+  livelihoodType = "",
+  reintegrationContext = "",
   severity = "moderate",
   skills = "",
 }) {
   const template = findTemplate(harmDescription);
   const normalizedLanguage = normalizeLanguage(language);
   const normalizedSeverity = normalizeSeverity(severity);
+  const context = {
+    communityImpact,
+    communityType,
+    livelihoodType,
+    reintegrationContext,
+  };
   const grantAmount = buildGrantAmount(template.category, normalizedSeverity);
-  const grantPurpose = buildGrantPurpose(skills, normalizedLanguage);
+  const grantPurpose = buildGrantPurpose({ category: template.category, context, skills }, normalizedLanguage);
   const categoryDetails = getCategoryContent(template.category, normalizedLanguage);
 
   return {
@@ -63,9 +79,21 @@ function generatePeaceBond({
     harmDescription: harmDescription.trim(),
     fighterName: fighterName.trim(),
     category: template.category,
+    communityImpact: typeof communityImpact === "string" ? communityImpact.trim() : "",
+    communityType: typeof communityType === "string" && communityType.trim()
+      ? communityType.trim()
+      : "General community",
     language: normalizedLanguage,
+    livelihoodType: typeof livelihoodType === "string" ? livelihoodType.trim() : "",
+    reintegrationContext:
+      typeof reintegrationContext === "string" ? reintegrationContext.trim() : "",
     severity: normalizedSeverity,
-    repairActions: buildRepairActions(template.category, normalizedSeverity, normalizedLanguage),
+    repairActions: buildRepairActions(
+      template.category,
+      normalizedSeverity,
+      normalizedLanguage,
+      context
+    ),
     ritual: categoryDetails.ritual,
     grant: {
       amount: grantAmount,
@@ -74,7 +102,7 @@ function generatePeaceBond({
     },
     grantAmount,
     grantPurpose,
-    explanation: buildExplanation(template.category, normalizedSeverity, normalizedLanguage),
+    explanation: buildExplanation(template.category, normalizedSeverity, normalizedLanguage, context),
     completedActions: [false, false, false],
     progress: 0,
     grantReleased: false,

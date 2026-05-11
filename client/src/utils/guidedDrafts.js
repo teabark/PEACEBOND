@@ -1,5 +1,11 @@
 import { translateWithFallback } from "./i18n.js";
-import { translateRepairActions } from "./peacebondContent.js";
+import {
+  translateCommunityType,
+  translateGrantPurpose,
+  translateLivelihoodType,
+  translateReintegrationContext,
+  translateRepairActions,
+} from "./peacebondContent.js";
 import { getParticipantId, isProtectedIdentity } from "./protectedIdentity.js";
 
 const categoryProfiles = [
@@ -39,6 +45,24 @@ const categoryProfiles = [
     keywords: ["land", "boundary", "farm", "field", "plot", "dispute", "border"],
     repairFocus: "boundary mediation, dialogue, and shared agreement",
   },
+  {
+    key: "resource_theft",
+    label: "resource theft",
+    keywords: ["resource", "water", "ration", "relief", "tools", "equipment", "nets", "seeds", "fuel"],
+    repairFocus: "resource restitution, shared access, and mediated accountability",
+  },
+  {
+    key: "livelihood_disruption",
+    label: "livelihood disruption",
+    keywords: ["livelihood", "income", "work", "market access", "trade", "fishing work", "farm work"],
+    repairFocus: "restoring work access, livelihood tools, and community trust",
+  },
+  {
+    key: "displacement_impact",
+    label: "community displacement impact",
+    keywords: ["displacement", "displaced", "camp", "temporary camp", "relocation", "shelter", "refugee"],
+    repairFocus: "safe access, practical repair, and careful displacement-aware mediation",
+  },
 ];
 
 const fallbackProfile = {
@@ -73,6 +97,18 @@ const localizedCategoryProfiles = {
       label: "mgogoro wa ardhi",
       repairFocus: "upatanishi wa mipaka, mazungumzo, na makubaliano ya pamoja",
     },
+    resource_theft: {
+      label: "wizi wa rasilimali",
+      repairFocus: "fidia ya rasilimali, upatikanaji wa pamoja, na uwajibikaji kupitia upatanisho",
+    },
+    livelihood_disruption: {
+      label: "kuvurugika kwa riziki",
+      repairFocus: "kurejesha upatikanaji wa kazi, zana za riziki, na uaminifu wa jamii",
+    },
+    displacement_impact: {
+      label: "athari ya uhamisho wa jamii",
+      repairFocus: "upatikanaji salama, marekebisho ya vitendo, na upatanisho makini unaozingatia uhamisho",
+    },
     general_harm: {
       label: "madhara ya jamii",
       repairFocus: "kusikiliza, marekebisho ya vitendo, na kurudi kwa upatanisho",
@@ -102,6 +138,18 @@ const localizedCategoryProfiles = {
     land_dispute: {
       label: "conflit foncier",
       repairFocus: "mediation des limites, dialogue et accord partage",
+    },
+    resource_theft: {
+      label: "vol de ressources",
+      repairFocus: "restitution des ressources, acces partage et responsabilite mediee",
+    },
+    livelihood_disruption: {
+      label: "perturbation des moyens de subsistance",
+      repairFocus: "restaurer l'acces au travail, les outils de subsistance et la confiance communautaire",
+    },
+    displacement_impact: {
+      label: "impact du deplacement communautaire",
+      repairFocus: "acces sur, reparation pratique et mediation prudente sensible au deplacement",
     },
     general_harm: {
       label: "prejudice communautaire",
@@ -133,6 +181,18 @@ const localizedCategoryProfiles = {
       label: "disputa de terra",
       repairFocus: "mediacao de limites, dialogo e acordo partilhado",
     },
+    resource_theft: {
+      label: "roubo de recursos",
+      repairFocus: "restituicao de recursos, acesso partilhado e responsabilidade mediada",
+    },
+    livelihood_disruption: {
+      label: "interrupcao dos meios de vida",
+      repairFocus: "restaurar acesso ao trabalho, ferramentas de subsistencia e confianca comunitaria",
+    },
+    displacement_impact: {
+      label: "impacto de deslocamento comunitario",
+      repairFocus: "acesso seguro, reparacao pratica e mediacao cuidadosa sensivel ao deslocamento",
+    },
     general_harm: {
       label: "dano comunitario",
       repairFocus: "escuta, reparacao pratica e retorno mediado",
@@ -162,6 +222,18 @@ const localizedCategoryProfiles = {
     land_dispute: {
       label: "نزاع أرض",
       repairFocus: "وساطة حدود، حوار، واتفاق مشترك",
+    },
+    resource_theft: {
+      label: "سرقة موارد",
+      repairFocus: "رد الموارد، الوصول المشترك، والمساءلة بوساطة",
+    },
+    livelihood_disruption: {
+      label: "تعطيل سبل العيش",
+      repairFocus: "استعادة الوصول إلى العمل وأدوات سبل العيش وثقة المجتمع",
+    },
+    displacement_impact: {
+      label: "أثر النزوح المجتمعي",
+      repairFocus: "وصول آمن وإصلاح عملي ووساطة حذرة مراعية للنزوح",
     },
     general_harm: {
       label: "ضرر مجتمعي",
@@ -319,12 +391,18 @@ function getContextText(context = {}, answers = {}) {
   const peaceBond = getPeaceBond(context);
   return [
     context.currentValue,
+    context.communityImpact,
     context.communityType,
+    context.livelihoodType,
+    context.reintegrationContext,
     context.skills,
     context.severity,
     peaceBond.category,
+    peaceBond.communityImpact,
     peaceBond.harmDescription,
     peaceBond.communityType,
+    peaceBond.livelihoodType,
+    peaceBond.reintegrationContext,
     peaceBond.severity,
     ...Object.values(answers),
   ]
@@ -343,11 +421,14 @@ function getCategoryProfile(context = {}, answers = {}) {
   }
 
   const contextText = getContextText(context, answers);
-  return (
-    categoryProfiles.find((profile) =>
-      profile.keywords.some((keyword) => contextText.includes(keyword))
-    ) || fallbackProfile
-  );
+  const rankedProfile = categoryProfiles
+    .map((profile) => ({
+      profile,
+      score: profile.keywords.filter((keyword) => contextText.includes(keyword)).length,
+    }))
+    .sort((first, second) => second.score - first.score)[0];
+
+  return rankedProfile?.score > 0 ? rankedProfile.profile : fallbackProfile;
 }
 
 function getDraftPhrases(language = "en") {
@@ -396,6 +477,53 @@ function getPersonLabel(context = {}, language = "en") {
   return phrases.personFallback;
 }
 
+function getCommunityContextLabel(context = {}, language = "en") {
+  const peaceBond = getPeaceBond(context);
+  const phrases = getDraftPhrases(language);
+  const community = translateCommunityType(
+    context.communityType || peaceBond.communityType,
+    language
+  );
+  const livelihood = translateLivelihoodType(
+    context.livelihoodType || peaceBond.livelihoodType,
+    language
+  );
+  const reintegration = translateReintegrationContext(
+    context.reintegrationContext || peaceBond.reintegrationContext,
+    language
+  );
+
+  return [community || phrases.defaultCommunity, livelihood, reintegration]
+    .filter(Boolean)
+    .join(" / ");
+}
+
+function getImpactSentence(impact, language = "en") {
+  const cleanedImpact = cleanText(impact);
+
+  if (!cleanedImpact) {
+    return "";
+  }
+
+  if (language === "sw") {
+    return `Athari kwa jamii iliyorekodiwa: ${cleanedImpact}`;
+  }
+
+  if (language === "fr") {
+    return `Impact communautaire note : ${cleanedImpact}`;
+  }
+
+  if (language === "pt") {
+    return `Impacto comunitario registrado: ${cleanedImpact}`;
+  }
+
+  if (language === "ar") {
+    return `الأثر المجتمعي المسجل: ${cleanedImpact}`;
+  }
+
+  return `Recorded community impact: ${cleanedImpact}`;
+}
+
 function getGrantText(context = {}, language = "en") {
   const peaceBond = getPeaceBond(context);
   const phrases = getDraftPhrases(language);
@@ -407,7 +535,7 @@ function getGrantText(context = {}, language = "en") {
 
   const currency = grant.currency || "USD";
   const amount = grant.amount || peaceBond.grantAmount;
-  const purpose = grant.purpose || peaceBond.grantPurpose || phrases.reintegrationSupport;
+  const purpose = translateGrantPurpose(peaceBond, language) || phrases.reintegrationSupport;
   return `${currency} ${amount} ${phrases.grantConnector} ${purpose}`;
 }
 
@@ -451,10 +579,11 @@ function generateHarmDraft({
   const phrases = getDraftPhrases(language);
   const profile = getCategoryProfile(context, answers);
   const person = getPersonLabel(context, language);
-  const communityType = cleanText(context.communityType) || phrases.defaultCommunity;
+  const communityType = getCommunityContextLabel(context, language);
   const severity = getSeverityText(context.severity, language);
   const profileLabel = getProfileText(profile, language, "label");
   const repairFocus = getProfileText(profile, language, "repairFocus");
+  const impactSentence = getImpactSentence(context.communityImpact, language);
   const whatHappened =
     cleanText(answers.whatHappened) ||
     cleanText(context.currentValue) ||
@@ -484,7 +613,7 @@ function generateHarmDraft({
         ? `Lengo la marekebisho linalopendekezwa ni ${repairNeed}, huku uwajibikaji na heshima vikidumishwa katika mchakato wote`
         : `Njia hii inapaswa kuzingatia ${repairNeed}, huku uwajibikaji, heshima, na upatanisho vikibaki katikati`;
 
-    return trimForTone(joinSentences([opening, detail, closing]), tone);
+    return trimForTone(joinSentences([opening, detail, impactSentence, closing]), tone);
   }
 
   if (language === "fr") {
@@ -500,7 +629,7 @@ function generateHarmDraft({
         ? `L'orientation restauratrice recommandee est ${repairNeed}, avec responsabilite et dignite maintenues tout au long du processus`
         : `Le parcours devrait se concentrer sur ${repairNeed}, en gardant la responsabilite, la dignite et la reconciliation au centre`;
 
-    return trimForTone(joinSentences([opening, detail, closing]), tone);
+    return trimForTone(joinSentences([opening, detail, impactSentence, closing]), tone);
   }
 
   if (language === "pt") {
@@ -516,7 +645,7 @@ function generateHarmDraft({
         ? `O foco restaurativo recomendado e ${repairNeed}, mantendo responsabilidade e dignidade durante todo o processo`
         : `O caminho deve focar em ${repairNeed}, mantendo responsabilidade, dignidade e reconciliacao no centro`;
 
-    return trimForTone(joinSentences([opening, detail, closing]), tone);
+    return trimForTone(joinSentences([opening, detail, impactSentence, closing]), tone);
   }
 
   if (language === "ar") {
@@ -532,7 +661,7 @@ function generateHarmDraft({
         ? `محور الإصلاح الموصى به هو ${repairNeed} مع الحفاظ على المسؤولية والكرامة طوال العملية`
         : `ينبغي أن يركز المسار على ${repairNeed} مع إبقاء المسؤولية والكرامة والمصالحة في المركز`;
 
-    return trimForTone(joinSentences([opening, detail, closing]), tone);
+    return trimForTone(joinSentences([opening, detail, impactSentence, closing]), tone);
   }
 
   const opening =
@@ -548,7 +677,7 @@ function generateHarmDraft({
       ? `The recommended restorative focus is ${repairNeed}, with accountability and dignity maintained throughout the process`
       : `The pathway should focus on ${repairNeed}, while keeping accountability, dignity, and reconciliation at the center`;
 
-  return trimForTone(joinSentences([opening, detail, closing]), tone);
+  return trimForTone(joinSentences([opening, detail, impactSentence, closing]), tone);
 }
 
 function generateCompletionReviewDraft({
@@ -651,7 +780,11 @@ function generateCommunityAcknowledgmentDraft({
 }) {
   const peaceBond = getPeaceBond(context);
   const phrases = getDraftPhrases(language);
-  const communityType = peaceBond.communityType || context.communityType || phrases.defaultCommunity;
+  const communityType = getCommunityContextLabel(context, language);
+  const impactSentence = getImpactSentence(
+    context.communityImpact || peaceBond.communityImpact,
+    language
+  );
   const response =
     cleanText(answers.communityResponse) ||
     (language === "sw"
@@ -696,7 +829,7 @@ function generateCommunityAcknowledgmentDraft({
         ? `Jamii ilibaini ${welcome}`
         : `Uangalizi uliobaki unapaswa kuzingatia ${concerns}, huku jamii ikibaini ${welcome}`;
 
-    return trimForTone(joinSentences([opening, response, closing]), tone);
+    return trimForTone(joinSentences([opening, response, impactSentence, closing]), tone);
   }
 
   if (language === "fr") {
@@ -709,7 +842,7 @@ function generateCommunityAcknowledgmentDraft({
         ? `La communaute a note ${welcome}`
         : `L'attention restante devrait porter sur ${concerns}, tandis que la communaute a note ${welcome}`;
 
-    return trimForTone(joinSentences([opening, response, closing]), tone);
+    return trimForTone(joinSentences([opening, response, impactSentence, closing]), tone);
   }
 
   if (language === "pt") {
@@ -722,7 +855,7 @@ function generateCommunityAcknowledgmentDraft({
         ? `A comunidade observou ${welcome}`
         : `A atencao restante deve focar em ${concerns}, enquanto a comunidade observou ${welcome}`;
 
-    return trimForTone(joinSentences([opening, response, closing]), tone);
+    return trimForTone(joinSentences([opening, response, impactSentence, closing]), tone);
   }
 
   if (language === "ar") {
@@ -735,7 +868,7 @@ function generateCommunityAcknowledgmentDraft({
         ? `لاحظ المجتمع ${welcome}`
         : `ينبغي أن يركز الاهتمام المتبقي على ${concerns}، بينما لاحظ المجتمع ${welcome}`;
 
-    return trimForTone(joinSentences([opening, response, closing]), tone);
+    return trimForTone(joinSentences([opening, response, impactSentence, closing]), tone);
   }
 
   const opening =
@@ -748,7 +881,7 @@ function generateCommunityAcknowledgmentDraft({
       ? `The community noted ${welcome}`
       : `Remaining attention should focus on ${concerns}, while the community noted ${welcome}`;
 
-  return trimForTone(joinSentences([opening, detail, closing]), tone);
+  return trimForTone(joinSentences([opening, detail, impactSentence, closing]), tone);
 }
 
 function generateStaffRecommendationDraft({

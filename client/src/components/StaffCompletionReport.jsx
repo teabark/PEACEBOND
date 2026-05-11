@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import GuidedDraftingAssistant from "./GuidedDraftingAssistant.jsx";
 import { useI18n } from "./LanguageProvider.jsx";
 import { useToast } from "./ToastProvider.jsx";
+import useConnectivity from "../hooks/useConnectivity.js";
+import {
+  clearLocalDraft,
+  getCompletionReportDraftKey,
+  hasMeaningfulDraftValue,
+  readLocalDraft,
+  saveLocalDraft,
+} from "../utils/offlineSupport.js";
 
 function StaffCompletionReport({
   completedActions,
@@ -12,9 +20,41 @@ function StaffCompletionReport({
 }) {
   const { t } = useI18n();
   const { showToast } = useToast();
-  const [reportSummary, setReportSummary] = useState("");
-  const [communityResponse, setCommunityResponse] = useState("");
-  const [staffRecommendation, setStaffRecommendation] = useState("");
+  const connectivity = useConnectivity();
+  const draftKey = useMemo(() => getCompletionReportDraftKey(peaceBond?._id), [peaceBond?._id]);
+  const initialDraft = useMemo(() => readLocalDraft(draftKey, {}), [draftKey]);
+  const [reportSummary, setReportSummary] = useState(initialDraft.reportSummary || "");
+  const [communityResponse, setCommunityResponse] = useState(initialDraft.communityResponse || "");
+  const [staffRecommendation, setStaffRecommendation] = useState(
+    initialDraft.staffRecommendation || ""
+  );
+  const [hasRecoveredDraft] = useState(() =>
+    hasMeaningfulDraftValue(initialDraft, [
+      "reportSummary",
+      "communityResponse",
+      "staffRecommendation",
+    ])
+  );
+
+  useEffect(() => {
+    const draft = {
+      communityResponse,
+      reportSummary,
+      staffRecommendation,
+    };
+
+    if (
+      hasMeaningfulDraftValue(draft, [
+        "reportSummary",
+        "communityResponse",
+        "staffRecommendation",
+      ])
+    ) {
+      saveLocalDraft(draftKey, draft);
+    } else {
+      clearLocalDraft(draftKey);
+    }
+  }, [communityResponse, draftKey, reportSummary, staffRecommendation]);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -50,6 +90,12 @@ function StaffCompletionReport({
       <p className="mt-2 text-sm leading-6 text-stone-600">
         {t("report.description")}
       </p>
+
+      {hasRecoveredDraft && (
+        <p className="mt-4 rounded-lg border border-earth-olive/20 bg-earth-sand/60 px-4 py-3 text-sm font-semibold text-earth-soil">
+          {t("offline.reportDraftRecovered")}
+        </p>
+      )}
 
       <form className="mt-5 flex flex-col gap-4" onSubmit={handleSubmit}>
         <div>
@@ -128,6 +174,16 @@ function StaffCompletionReport({
             {t("report.lockedButton")}
           </button>
         </div>
+
+        {(connectivity.isOffline || connectivity.isLimited || hasRecoveredDraft) && (
+          <p className="rounded-lg border border-earth-clay/20 bg-earth-sand/60 px-4 py-3 text-sm text-stone-700">
+            {connectivity.isOffline
+              ? t("offline.reportDraftSaved")
+              : connectivity.isLimited
+                ? t("offline.connectionRecommended")
+                : t("offline.savedLocallyShort")}
+          </p>
+        )}
       </form>
     </section>
   );
