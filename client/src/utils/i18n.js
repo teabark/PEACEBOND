@@ -113,7 +113,9 @@ const translations = {
     "draft.answer.affectedPeople": "Who was affected?",
     "draft.answer.whatCompleted": "What was completed?",
     "draft.answer.whatHappened": "What happened?",
+    "draft.additionalContext": "Additional context",
     "draft.clear": "Clear Draft",
+    "draft.close": "Close",
     "draft.edit": "Edit Draft",
     "draft.editable": "Editable draft",
     "draft.generate": "Generate guided draft",
@@ -123,7 +125,12 @@ const translations = {
     "draft.helpHarm": "Need help wording the harm description?",
     "draft.helpRecommendation": "Need help drafting the staff recommendation?",
     "draft.helpReview": "Need help drafting the completion review?",
+    "draft.lessGuidance": "Less guidance",
+    "draft.moreGuidance": "More guidance",
     "draft.open": "Help me draft this",
+    "draft.optionalPromptHelper": "PeaceBond already uses the case details. Add only what would make the draft more specific.",
+    "draft.panelIntro": "A rule-based draft is generated from the PeaceBond case, repair progress, grant details, and any optional notes you add.",
+    "draft.panelTitle": "Guided drafting",
     "draft.placeholder.affectedPeople": "Example: The affected fisher and landing-site vendors.",
     "draft.placeholder.communityResponse": "Example: Elders acknowledged visible effort and reduced tension.",
     "draft.placeholder.damagedItem": "Example: Fishing equipment and shared landing-site trust.",
@@ -138,6 +145,8 @@ const translations = {
     "draft.placeholder.whatCompleted": "Example: Restitution, supervised repair labor, and mediation sessions.",
     "draft.placeholder.whatHappened": "Example: Fishing nets were damaged during a shoreline dispute.",
     "draft.regenerate": "Regenerate draft",
+    "draft.quickPrompts": "Optional prompts",
+    "draft.sharedToneHelper": "This tone applies to all report drafts in this completion review.",
     "draft.tone": "Drafting tone",
     "draft.tone.brief": "Brief",
     "draft.tone.detailed": "Detailed",
@@ -1491,6 +1500,60 @@ const contextTranslations = {
 };
 
 Object.entries(contextTranslations).forEach(([languageCode, strings]) => {
+  translationSupplements[languageCode] = {
+    ...(translationSupplements[languageCode] || {}),
+    ...strings,
+  };
+});
+
+const draftUxTranslations = {
+  sw: {
+    "draft.additionalContext": "Muktadha wa ziada",
+    "draft.close": "Funga",
+    "draft.lessGuidance": "Mwongozo mdogo",
+    "draft.moreGuidance": "Mwongozo zaidi",
+    "draft.optionalPromptHelper": "PeaceBond tayari hutumia maelezo ya kesi. Ongeza tu kinachofanya rasimu iwe mahususi zaidi.",
+    "draft.panelIntro": "Rasimu ya kanuni hutengenezwa kutoka kesi ya PeaceBond, maendeleo ya marekebisho, maelezo ya ruzuku, na maelezo yoyote ya hiari.",
+    "draft.panelTitle": "Uandishi elekezi",
+    "draft.quickPrompts": "Vidokezo vya hiari",
+    "draft.sharedToneHelper": "Mtindo huu unatumika kwa rasimu zote za ripoti katika mapitio haya ya ukamilishaji.",
+  },
+  fr: {
+    "draft.additionalContext": "Contexte supplementaire",
+    "draft.close": "Fermer",
+    "draft.lessGuidance": "Moins de guidance",
+    "draft.moreGuidance": "Plus de guidance",
+    "draft.optionalPromptHelper": "PeaceBond utilise deja les details du cas. Ajoutez seulement ce qui rendra le brouillon plus precis.",
+    "draft.panelIntro": "Un brouillon base sur des regles est genere a partir du cas PeaceBond, de l'avancement des reparations, des details de la subvention et de vos notes facultatives.",
+    "draft.panelTitle": "Redaction guidee",
+    "draft.quickPrompts": "Prompts facultatifs",
+    "draft.sharedToneHelper": "Ce ton s'applique a tous les brouillons du rapport dans cet examen d'achevement.",
+  },
+  pt: {
+    "draft.additionalContext": "Contexto adicional",
+    "draft.close": "Fechar",
+    "draft.lessGuidance": "Menos orientacao",
+    "draft.moreGuidance": "Mais orientacao",
+    "draft.optionalPromptHelper": "O PeaceBond ja usa os detalhes do caso. Adicione apenas o que torna o rascunho mais especifico.",
+    "draft.panelIntro": "Um rascunho baseado em regras e gerado a partir do caso PeaceBond, progresso de reparacao, detalhes do subsídio e notas opcionais.",
+    "draft.panelTitle": "Redacao guiada",
+    "draft.quickPrompts": "Perguntas opcionais",
+    "draft.sharedToneHelper": "Este tom se aplica a todos os rascunhos do relatorio nesta revisao de conclusao.",
+  },
+  ar: {
+    "draft.additionalContext": "سياق إضافي",
+    "draft.close": "إغلاق",
+    "draft.lessGuidance": "إرشاد أقل",
+    "draft.moreGuidance": "إرشاد إضافي",
+    "draft.optionalPromptHelper": "يستخدم PeaceBond تفاصيل الحالة بالفعل. أضف فقط ما يجعل المسودة أكثر تحديداً.",
+    "draft.panelIntro": "يتم إنشاء مسودة قائمة على القواعد من حالة PeaceBond وتقدم الإصلاح وتفاصيل المنحة وأي ملاحظات اختيارية تضيفها.",
+    "draft.panelTitle": "صياغة موجهة",
+    "draft.quickPrompts": "مطالبات اختيارية",
+    "draft.sharedToneHelper": "تنطبق هذه النبرة على جميع مسودات التقرير في مراجعة الإكمال هذه.",
+  },
+};
+
+Object.entries(draftUxTranslations).forEach(([languageCode, strings]) => {
   translationSupplements[languageCode] = {
     ...(translationSupplements[languageCode] || {}),
     ...strings,

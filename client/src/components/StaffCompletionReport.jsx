@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import GuidedDraftingAssistant from "./GuidedDraftingAssistant.jsx";
+import GuidedDraftingAssistant, { draftToneOptions } from "./GuidedDraftingAssistant.jsx";
 import { useI18n } from "./LanguageProvider.jsx";
 import { useToast } from "./ToastProvider.jsx";
 import useConnectivity from "../hooks/useConnectivity.js";
@@ -28,6 +28,7 @@ function StaffCompletionReport({
   const [staffRecommendation, setStaffRecommendation] = useState(
     initialDraft.staffRecommendation || ""
   );
+  const [draftTone, setDraftTone] = useState("warm");
   const [hasRecoveredDraft] = useState(() =>
     hasMeaningfulDraftValue(initialDraft, [
       "reportSummary",
@@ -80,11 +81,11 @@ function StaffCompletionReport({
   };
 
   return (
-    <section className="rounded-lg border border-earth-clay/20 bg-white/90 p-5 shadow-sm sm:p-6">
-      <p className="text-sm font-semibold uppercase tracking-wide text-earth-clay">
+    <section className="rounded-3xl border border-earth-clay/15 bg-[#fffdf8] p-6 shadow-lg shadow-earth-soil/10 sm:p-7">
+      <p className="text-xs font-semibold uppercase tracking-normal text-earth-clay">
         {t("report.title")}
       </p>
-      <h2 className="mt-2 text-2xl font-semibold text-earth-soil">
+      <h2 className="mt-3 text-2xl font-semibold text-earth-soil">
         {t("report.completionReview")}
       </h2>
       <p className="mt-2 text-sm leading-6 text-stone-600">
@@ -97,13 +98,44 @@ function StaffCompletionReport({
         </p>
       )}
 
-      <form className="mt-5 flex flex-col gap-4" onSubmit={handleSubmit}>
+      <div className="mt-5 rounded-2xl border border-earth-clay/10 bg-[#f8efe4] p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-normal text-earth-clay">
+              {t("draft.tone")}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-stone-600">
+              {t("draft.sharedToneHelper")}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {draftToneOptions.map((toneOption) => (
+              <button
+                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                  draftTone === toneOption.value
+                    ? "border-earth-olive bg-earth-olive text-white"
+                    : "border-earth-clay/15 bg-white text-earth-soil hover:border-earth-olive/30"
+                }`}
+                key={toneOption.value}
+                onClick={() => setDraftTone(toneOption.value)}
+                type="button"
+              >
+                {t(toneOption.key)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <form className="mt-5 flex flex-col gap-5" onSubmit={handleSubmit}>
         <div>
-          <label className="text-sm font-semibold text-earth-soil" htmlFor="report-summary">
-            {t("report.completionReview")}
-          </label>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <label className="text-sm font-semibold text-earth-soil" htmlFor="report-summary">
+              {t("report.completionReview")}
+            </label>
+          </div>
           <textarea
-            className="mt-2 min-h-24 w-full resize-y rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
+            className="mt-2 min-h-24 w-full resize-y rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
             id="report-summary"
             onChange={(event) => setReportSummary(event.target.value)}
             placeholder={t("report.reviewPlaceholder")}
@@ -115,6 +147,8 @@ function StaffCompletionReport({
             fieldType="completionReview"
             helperText={t("draft.helpReview")}
             onUseDraft={setReportSummary}
+            showToneSelector={false}
+            tone={draftTone}
           />
         </div>
 
@@ -123,7 +157,7 @@ function StaffCompletionReport({
             {t("report.acknowledgment")}
           </label>
           <textarea
-            className="mt-2 min-h-24 w-full resize-y rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
+            className="mt-2 min-h-24 w-full resize-y rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
             id="community-response"
             onChange={(event) => setCommunityResponse(event.target.value)}
             placeholder={t("report.ackPlaceholder")}
@@ -135,6 +169,8 @@ function StaffCompletionReport({
             fieldType="communityAcknowledgment"
             helperText={t("draft.helpAcknowledgment")}
             onUseDraft={setCommunityResponse}
+            showToneSelector={false}
+            tone={draftTone}
           />
         </div>
 
@@ -143,7 +179,7 @@ function StaffCompletionReport({
             {t("report.recommendation")}
           </label>
           <textarea
-            className="mt-2 min-h-20 w-full resize-y rounded-lg border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
+            className="mt-2 min-h-20 w-full resize-y rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-800 outline-none transition focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
             id="staff-recommendation"
             onChange={(event) => setStaffRecommendation(event.target.value)}
             placeholder={t("report.recommendationPlaceholder")}
@@ -155,6 +191,8 @@ function StaffCompletionReport({
             fieldType="staffRecommendation"
             helperText={t("draft.helpRecommendation")}
             onUseDraft={setStaffRecommendation}
+            showToneSelector={false}
+            tone={draftTone}
           />
         </div>
 
