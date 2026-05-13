@@ -5,9 +5,9 @@ function ProtectedIdentityBadge({ className = "" }) {
 
   return (
     <span
-      className={`inline-flex w-fit items-center gap-1 rounded-full border border-earth-olive/25 bg-earth-olive/10 px-3 py-1 text-xs font-semibold text-earth-olive ${className}`}
+      className={`inline-flex w-fit items-center gap-1 rounded-full border border-earth-clay/20 bg-[#fff4e4] px-3 py-1 text-xs font-semibold text-earth-soil ${className}`}
     >
-      <span aria-hidden="true">🛡</span>
+      <span aria-hidden="true">ID</span>
       {t("identity.protected")}
     </span>
   );

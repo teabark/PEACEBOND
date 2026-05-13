@@ -91,7 +91,7 @@ function Dashboard() {
 
                 return (
                   <article
-                    className="rounded-2xl border border-earth-clay/10 bg-[#f8eddf] p-4 transition duration-200 hover:border-earth-olive/20 hover:bg-white"
+                    className="rounded-2xl border border-earth-clay/10 bg-[#f8efe4] p-4 transition duration-200 hover:border-earth-clay/25 hover:bg-white"
                     key={peaceBond._id}
                   >
                     <div className="flex flex-wrap items-center gap-2">
@@ -101,7 +101,7 @@ function Dashboard() {
                       {protectedCase && <ProtectedIdentityBadge />}
                     </div>
                     {!protectedCase && peaceBond.nationality && (
-                      <p className="mt-1 text-xs font-semibold text-earth-olive">
+                      <p className="mt-1 text-xs font-semibold text-earth-clay">
                         {t("card.nationality")}: {peaceBond.nationality}
                       </p>
                     )}

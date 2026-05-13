@@ -50,11 +50,11 @@ function getStatusKey(status) {
 
 function getStatusClasses(status) {
   if (status === "completed") {
-    return "border-earth-olive/20 bg-[#eef4e6] text-earth-olive";
+    return "border-earth-olive/15 bg-[#f4f1e7] text-earth-olive";
   }
 
   if (status === "under review") {
-    return "border-[#c6d2b5] bg-[#f2f6eb] text-earth-olive";
+    return "border-earth-clay/15 bg-[#f8efe4] text-earth-soil";
   }
 
   if (status === "review needed") {
@@ -84,7 +84,7 @@ function ActivePeaceBonds({
       </h2>
 
       {isLoading && (
-        <div className="mt-7 flex items-center gap-3 rounded-2xl border border-earth-clay/15 bg-[#f8eddf] p-5">
+        <div className="mt-7 flex items-center gap-3 rounded-2xl border border-earth-clay/15 bg-[#f8efe4] p-5">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-earth-clay border-t-transparent" />
           <p className="text-sm font-semibold text-stone-600">{t("active.loading")}</p>
         </div>
@@ -97,7 +97,7 @@ function ActivePeaceBonds({
       )}
 
       {!isLoading && !error && peaceBonds.length === 0 && (
-        <div className="mt-7 rounded-3xl border border-dashed border-earth-clay/30 bg-[#f8eddf] p-7 text-center">
+        <div className="mt-7 rounded-3xl border border-dashed border-earth-clay/30 bg-[#f8efe4] p-7 text-center">
           <p className="text-base font-semibold text-earth-soil">{t("active.noCases")}</p>
           <p className="mt-2 text-sm leading-6 text-stone-600">
             {emptyMessage || t("active.emptyDefault")}
@@ -113,7 +113,7 @@ function ActivePeaceBonds({
 
             return (
               <article
-                className="rounded-3xl border border-earth-clay/10 bg-[#f8eddf] p-5 shadow-sm shadow-earth-soil/10 transition duration-200 hover:-translate-y-0.5 hover:border-earth-olive/20 hover:bg-white hover:shadow-md"
+                className="rounded-3xl border border-earth-clay/10 bg-[#f8efe4] p-5 shadow-sm shadow-earth-soil/10 transition duration-200 hover:-translate-y-0.5 hover:border-earth-clay/25 hover:bg-white hover:shadow-md"
                 key={peaceBond._id}
               >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -123,7 +123,7 @@ function ActivePeaceBonds({
                     {protectedCase && <ProtectedIdentityBadge />}
                   </div>
                   {!protectedCase && peaceBond.nationality && (
-                    <p className="mt-1 text-xs font-semibold text-earth-olive">
+                    <p className="mt-1 text-xs font-semibold text-earth-clay">
                       {t("card.nationality")}: {peaceBond.nationality}
                     </p>
                   )}

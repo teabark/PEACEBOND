@@ -11,7 +11,7 @@ function LanguageSelector({ compact = false, tone = "light" }) {
         isDark
           ? "border border-earth-sand/20 bg-white/10 p-3 text-earth-sand"
           : isSidebar
-            ? "border border-earth-clay/15 bg-[#fff7eb]/75 p-3 text-earth-soil shadow-sm shadow-earth-soil/10"
+            ? "border border-earth-clay/15 bg-[#fffdf8]/70 p-3 text-earth-soil shadow-sm shadow-earth-soil/10"
           : "border border-earth-soil/10 bg-white/70 p-3 text-earth-soil shadow-sm"
       }`}
     >
@@ -37,7 +37,7 @@ function LanguageSelector({ compact = false, tone = "light" }) {
           isDark
             ? "border-earth-sand/20 bg-earth-soil text-earth-sand focus:border-earth-sand"
             : isSidebar
-              ? "border-earth-clay/20 bg-[#fffaf3] text-earth-soil focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
+              ? "border-earth-clay/20 bg-[#fffaf2] text-earth-soil focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
             : "border-stone-300 bg-white text-earth-soil focus:border-earth-clay focus:ring-2 focus:ring-earth-clay/20"
         }`}
         id={`language-${tone}-${compact ? "compact" : "full"}`}

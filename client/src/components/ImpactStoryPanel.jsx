@@ -71,7 +71,7 @@ function ImpactStoryPanel({ peaceBonds }) {
       <div className="mt-6 grid gap-5 md:grid-cols-2">
         {stories.map((story) => (
           <article
-            className="rounded-3xl border border-earth-clay/10 bg-[#f8eddf] p-6 shadow-sm shadow-earth-soil/10 transition duration-200 hover:-translate-y-0.5 hover:border-earth-olive/20 hover:bg-white hover:shadow-md"
+            className="rounded-3xl border border-earth-clay/10 bg-[#f8efe4] p-6 shadow-sm shadow-earth-soil/10 transition duration-200 hover:-translate-y-0.5 hover:border-earth-clay/25 hover:bg-white hover:shadow-md"
             key={story.title}
           >
             <h3 className="text-lg font-semibold text-earth-soil">{story.title}</h3>

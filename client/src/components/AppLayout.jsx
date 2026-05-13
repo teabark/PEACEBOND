@@ -148,7 +148,7 @@ function AppLayout() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex min-h-0 w-80 max-w-[86vw] flex-col overflow-hidden border-r border-earth-clay/20 bg-gradient-to-b from-[#d8c4b2] via-[#eadaca] to-[#f8efe4] p-6 text-earth-soil shadow-2xl shadow-earth-soil/20 transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:h-screen lg:w-auto lg:max-w-none lg:translate-x-0 lg:shadow-none ${
+        className={`fixed inset-y-0 left-0 z-50 flex min-h-0 w-80 max-w-[86vw] flex-col overflow-hidden border-r border-earth-clay/15 bg-gradient-to-b from-[#d9c8b8] via-[#eadccd] to-[#f8efe4] p-6 text-earth-soil shadow-2xl shadow-earth-soil/15 transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:h-screen lg:w-auto lg:max-w-none lg:translate-x-0 lg:shadow-none ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -164,7 +164,7 @@ function AppLayout() {
               {t("app.close")}
             </button>
           </div>
-          <p className="mt-5 w-fit rounded-full border border-earth-olive/20 bg-[#fffaf2]/70 px-3 py-1 text-xs font-semibold uppercase tracking-normal text-earth-olive">
+          <p className="mt-5 w-fit rounded-full border border-earth-clay/15 bg-[#fffdf8]/65 px-3 py-1 text-xs font-semibold uppercase tracking-normal text-earth-clay">
             {t("layout.operations")}
           </p>
         </div>
@@ -175,8 +175,8 @@ function AppLayout() {
               className={({ isActive }) =>
                 `group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition duration-200 ${
                   isActive
-                    ? "border border-earth-olive/25 bg-[#fffaf2] text-earth-soil shadow-md shadow-earth-soil/10 ring-1 ring-earth-olive/10"
-                    : "border border-transparent text-stone-700 hover:border-earth-clay/20 hover:bg-[#fffaf2]/65 hover:text-earth-soil"
+                    ? "border border-earth-olive/15 bg-[#fffdf8]/85 text-earth-soil shadow-md shadow-earth-soil/10 ring-1 ring-earth-olive/5"
+                    : "border border-transparent text-stone-700 hover:border-earth-clay/20 hover:bg-[#fffdf8]/55 hover:text-earth-soil"
                 }`
               }
               end={item.to === "/dashboard"}
@@ -184,7 +184,7 @@ function AppLayout() {
               onClick={() => setIsSidebarOpen(false)}
               to={item.to}
             >
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#dce6cd] text-xs font-bold text-earth-olive transition group-hover:bg-earth-olive/20">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#eadaca] text-xs font-bold text-earth-clay transition group-hover:bg-[#f4e8dc]">
                 {item.icon}
               </span>
               {t(item.labelKey)}
@@ -194,15 +194,15 @@ function AppLayout() {
 
         <div className="mt-7 shrink-0 border-t border-earth-clay/20 pt-5">
           <LanguageSelector compact tone="sidebar" />
-          <div className="mt-4 rounded-2xl border border-earth-clay/15 bg-[#fffaf2]/75 px-4 py-4 text-sm leading-6 text-stone-700 shadow-sm shadow-earth-soil/10">
+          <div className="mt-4 rounded-2xl border border-earth-clay/15 bg-[#fffdf8]/70 px-4 py-4 text-sm leading-6 text-stone-700 shadow-sm shadow-earth-soil/10">
             <p className="font-semibold text-earth-soil">{t("layout.peaceMediator")}</p>
             <p className="mt-1">{staffName}</p>
-            <p className="mt-3 text-xs font-semibold uppercase tracking-normal text-earth-olive">
+            <p className="mt-3 text-xs font-semibold uppercase tracking-normal text-earth-clay">
               {t("layout.staffMember")}
             </p>
           </div>
           <button
-            className="mt-3 w-full rounded-xl border border-earth-clay/20 bg-[#fffaf3] px-4 py-3 text-left text-sm font-semibold text-earth-soil shadow-sm shadow-earth-soil/5 transition hover:border-earth-clay/40 hover:bg-white hover:text-earth-clay"
+            className="mt-3 w-full rounded-xl border border-earth-clay/20 bg-[#fffdf8] px-4 py-3 text-left text-sm font-semibold text-earth-soil shadow-sm shadow-earth-soil/5 transition hover:border-earth-clay/40 hover:bg-white hover:text-earth-clay"
             onClick={handleLogout}
             type="button"
           >
@@ -214,7 +214,7 @@ function AppLayout() {
       <div className="min-w-0 bg-[#fbf6ee]">
         <header className="px-4 pt-5 sm:px-6 lg:px-8 lg:pt-7">
           <div className="mx-auto max-w-7xl">
-            <div className="overflow-hidden rounded-3xl border border-white bg-gradient-to-br from-[#fffdf8] via-[#f4e5d4] to-[#edf1df] px-6 py-6 shadow-xl shadow-earth-soil/10 sm:px-8 sm:py-7">
+            <div className="overflow-hidden rounded-3xl border border-white/80 bg-gradient-to-br from-[#fffdf8] via-[#f8efe4] to-[#f2eadf] px-6 py-6 shadow-xl shadow-earth-soil/10 sm:px-8 sm:py-7">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3 lg:hidden">
@@ -237,22 +237,22 @@ function AppLayout() {
                   <p className="mt-3 max-w-2xl text-base leading-7 text-stone-700">
                     {t(pageContext.subtitleKey)}
                   </p>
-                  <div className="mt-5 h-1 w-24 rounded-full bg-earth-olive/35" />
-                  <p className="mt-3 text-sm font-semibold text-earth-olive">
+                  <div className="mt-5 h-1 w-24 rounded-full bg-earth-clay/30" />
+                  <p className="mt-3 text-sm font-semibold text-earth-clay">
                     {t(getGreetingKey())}, {staffName}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-3 lg:items-end">
                   <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                    <span className="w-fit rounded-full border border-earth-olive/25 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-normal text-earth-olive">
+                    <span className="w-fit rounded-full border border-earth-clay/15 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-normal text-earth-soil">
                       {formatDate(new Date(), {
                         day: "numeric",
                         month: "short",
                         weekday: "long",
                       })}
                     </span>
-                    <span className="w-fit rounded-full border border-earth-clay/20 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-normal text-earth-clay">
+                    <span className="w-fit rounded-full border border-earth-clay/20 bg-[#fffdf8]/70 px-4 py-2 text-xs font-semibold uppercase tracking-normal text-earth-clay">
                       {t(pageContext.storyKey)}
                     </span>
                   </div>
